@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import pandas as pd
 
 
@@ -11,6 +12,7 @@ RESULTS = ROOT / "results"
 def main() -> None:
     metrics = pd.read_csv(RESULTS / "metrics_summary.csv")
     summary = pd.read_csv(RESULTS / "dataset_summary.csv")
+    metadata = json.loads((RESULTS / "experiment_metadata.json").read_text(encoding="utf-8"))
     refined = metrics[metrics["stage"] == "refined"]
     source = refined[refined["evaluation"] == "in_domain"]
     target = refined[refined["evaluation"].str.startswith("cross_domain:")]
@@ -23,8 +25,11 @@ def main() -> None:
     gaps = source_f1 - target_means
     consistent_name = gaps.idxmin()
     domain_means = target.groupby("evaluation")["f1"].mean().sort_values()
-    hardest = domain_means.index[0].replace("cross_domain:", "").title()
-    easiest = domain_means.index[-1].replace("cross_domain:", "").title()
+    display_names = {"books": "Books", "dvd": "DVD", "electronics": "Electronics", "kitchen": "Kitchen"}
+    hardest_key = domain_means.index[0].replace("cross_domain:", "")
+    easiest_key = domain_means.index[-1].replace("cross_domain:", "")
+    hardest = display_names.get(hardest_key, hardest_key.title())
+    easiest = display_names.get(easiest_key, easiest_key.title())
 
     try:
         word_count = (ROOT / "report" / "generated_wordcount.tex").read_text().strip()
@@ -32,10 +37,12 @@ def main() -> None:
         word_count = "Pending"
 
     sample_text = "; ".join(
-        f"{row.domain.title()}: {int(row.documents)} reviews "
+        f"{display_names.get(row.domain.lower(), row.domain.title())}: {int(row.documents)} reviews "
         f"({int(row.positive)} positive, {int(row.negative)} negative)"
         for row in summary.itertuples()
     )
+    split_text = (f"Books split: {metadata['source_train']} training, {metadata['source_validation']} validation and "
+                  f"{metadata['source_test']} test; {metadata['selected_features']} selected features.")
     metrics_text = (
         f"- Best refined Books test F1: {best_source['model']} "
         f"(F1 {best_source['f1']:.3f}, accuracy {best_source['accuracy']:.3f}).\n"
@@ -47,7 +54,7 @@ def main() -> None:
         f"easiest: {easiest} (mean F1 {domain_means.iloc[-1]:.3f})."
     )
 
-    readme = f"""# Applied AI Assignment 2
+    readme = f"""# Applied AI Coursework 2 of 2 — Cross-Domain Sentiment Classification
 
 **Task:** cross-domain binary sentiment classification.  
 **Dataset:** Johns Hopkins Multi-Domain Sentiment Dataset v2.0.  
@@ -86,14 +93,14 @@ Raw data are downloaded from the official source and excluded from Git. The proj
 Status: Successful
 
 - Official Multi-Domain Sentiment Dataset v2.0 downloaded and processed.
-- Four domains sampled with equal positive and negative classes.
+- Four selected domains: 2,000 labelled reviews each (1,000 positive and 1,000 negative; 8,000 total).
 - Exactly two traditional models and two deep models trained.
 - Baseline and refined versions evaluated.
 - Validation-only hyperparameter and decision-threshold selection.
 - Trained refined model weights and preprocessing objects saved under results/models.
 - Notebook executed with visible outputs.
 - Unified metrics table, refinement log and figures generated.
-- LaTeX report compiled; word count: {word_count}.
+- LaTeX report compiled; TeXcount total: {word_count} words (maximum allowed: 3,000).
 
 ## Measured results
 
@@ -113,7 +120,8 @@ The raw dataset is not committed to Git. The download script retrieves it from t
 """
     (ROOT / "README.md").write_text(readme, encoding="utf-8")
     (ROOT / "BUILD_STATUS.md").write_text(build, encoding="utf-8")
-    print("Updated README.md and BUILD_STATUS.md from measured results.")
+    (RESULTS / "environment.json").write_text(json.dumps(metadata.get("software_versions", {}), indent=2), encoding="utf-8")
+    print("Updated README.md, BUILD_STATUS.md and results/environment.json from measured results.")
 
 
 if __name__ == "__main__":
