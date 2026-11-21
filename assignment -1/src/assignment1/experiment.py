@@ -8,6 +8,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+import joblib
 import pandas as pd
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -390,6 +391,35 @@ def run_experiment(
             "validation_f1": val_f1,
             "setting": setting,
         })
+
+    # Save the fitted preprocessing pipeline and the four refined model artifacts.
+    model_dir = output / "models"
+    model_dir.mkdir(parents=True, exist_ok=True)
+    joblib.dump(
+        {"vectorizer": vectorizer, "tfidf": tfidf, "selector": selector},
+        model_dir / "preprocessing.joblib",
+    )
+    for model_name in ["Logistic Regression", "Linear SVM", "Deep Neural Network", "Residual MLP"]:
+        model = models[(model_name, "refined")]
+        filename = f"{_safe(model_name)}_refined"
+        if model_name in {"Deep Neural Network", "Residual MLP"}:
+            import torch
+            torch.save(
+                {"state_dict": model.model.state_dict(), "input_dim": int(X_train.shape[1])},
+                model_dir / f"{filename}.pt",
+            )
+        else:
+            joblib.dump(model, model_dir / f"{filename}.joblib")
+    artifact_metadata = {
+        f"{name}__{stage}": {
+            "decision_threshold": thresholds[(name, stage)],
+            "validation_f1": validation_scores[(name, stage)],
+        }
+        for name, stage in models
+    }
+    (model_dir / "model_metadata.json").write_text(
+        json.dumps(artifact_metadata, indent=2), encoding="utf-8"
+    )
 
     # Majority-class reference baseline, calculated independently for each evaluation set.
     evaluations = [("in_domain", X_source_test, y_test)]
