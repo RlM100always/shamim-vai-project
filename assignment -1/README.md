@@ -33,4 +33,4 @@ The executed notebook, unified metrics table, refinement log, figures, trained r
     pdflatex main.tex
     pdflatex main.tex
 
-Raw data are downloaded from the official source and excluded from Git. The project ZIP is for convenience only; the coursework brief says to submit the notebook and report separately, not as a ZIP.
+Raw data are downloaded from the official source and excluded from Git. The ZIP archives are for convenience only; the coursework brief says to submit the notebook and report separately, not as ZIP files.
