@@ -4,7 +4,7 @@
     "validation_f1": 0.7733333333333333
   },
   "Logistic Regression__refined": {
-    "decision_threshold": 0.37014708588021844,
+    "decision_threshold": 0.3701470858802196,
     "validation_f1": 0.8268156424581006
   },
   "Linear SVM__baseline": {
@@ -20,7 +20,7 @@
     "validation_f1": 0.803921568627451
   },
   "Deep Neural Network__refined": {
-    "decision_threshold": 0.3295643925666809,
+    "decision_threshold": 0.3295643895864487,
     "validation_f1": 0.8452380952380952
   },
   "Residual MLP__baseline": {
@@ -28,7 +28,7 @@
     "validation_f1": 0.8092105263157895
   },
   "Residual MLP__refined": {
-    "decision_threshold": 0.2914811998605728,
+    "decision_threshold": 0.29148137867450713,
     "validation_f1": 0.8212290502793296
   }
 }
