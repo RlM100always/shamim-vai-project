@@ -35,10 +35,40 @@ def _score(model, X):
     return model.predict(X).astype(float)
 
 
-def _evaluate(model_name, stage, evaluation, model, X, y, validation_f1):
+def _default_threshold(model):
+    return 0.5 if hasattr(model, "predict_proba") else 0.0
+
+
+def _predict_at_threshold(model, X, threshold):
+    return (_score(model, X) >= threshold).astype(int)
+
+
+def _best_threshold(model, X_valid, y_valid):
+    scores = np.asarray(_score(model, X_valid), dtype=float)
+    candidates = np.unique(np.quantile(scores, np.linspace(0.0, 1.0, 101)))
+    candidates = np.unique(np.concatenate((
+        [scores.min() - 1e-8], candidates, [scores.max() + 1e-8],
+        [_default_threshold(model)],
+    )))
+    default = _default_threshold(model)
+    best_threshold = default
+    best_f1 = -1.0
+    best_distance = float("inf")
+    for threshold in candidates:
+        prediction = (scores >= threshold).astype(int)
+        score = float(f1_score(y_valid, prediction, zero_division=0))
+        distance = abs(float(threshold) - default)
+        if score > best_f1 or (score == best_f1 and distance < best_distance):
+            best_f1 = score
+            best_threshold = float(threshold)
+            best_distance = distance
+    return best_threshold, best_f1
+
+
+def _evaluate(model_name, stage, evaluation, model, X, y, validation_f1, threshold):
     y_true = np.asarray(y, dtype=int)
-    prediction = np.asarray(model.predict(X), dtype=int)
     scores = np.asarray(_score(model, X), dtype=float)
+    prediction = (scores >= threshold).astype(int)
     auc = float("nan")
     if len(np.unique(y_true)) == 2:
         try:
@@ -266,7 +296,9 @@ def run_experiment(
 
     models = {}
     validation_scores = {}
+    thresholds = {}
     refinement_rows = []
+    model_settings = {}
 
     # Traditional model 1: Logistic Regression.
     lr_base = make_logistic_regression(1.0)
@@ -323,18 +355,41 @@ def run_experiment(
         ("Residual MLP", "residual_mlp"),
     ]:
         for stage in ["baseline", "refined"]:
-            predictor, val_f1, settings = train_deep_model(
+            predictor, _, settings = train_deep_model(
                 kind, stage, X_train_dense, y_train_array,
                 X_valid_dense, y_valid_array, seed=seed,
             )
             models[(model_name, stage)] = predictor
-            validation_scores[(model_name, stage)] = val_f1
-            refinement_rows.append({
-                "model": model_name,
-                "stage": stage,
-                "validation_f1": val_f1,
-                "setting": json.dumps(settings, sort_keys=True),
-            })
+            model_settings[(model_name, stage)] = settings
+
+    # Select decision thresholds on validation data for refined models only.
+    refinement_rows = []
+    for (model_name, stage), model in models.items():
+        is_deep = model_name in {"Deep Neural Network", "Residual MLP"}
+        X_val = X_valid_dense if is_deep else X_valid
+        if stage == "refined":
+            threshold, val_f1 = _best_threshold(model, X_val, y_valid)
+        else:
+            threshold = _default_threshold(model)
+            val_f1 = float(f1_score(
+                y_valid, _predict_at_threshold(model, X_val, threshold), zero_division=0
+            ))
+        thresholds[(model_name, stage)] = threshold
+        validation_scores[(model_name, stage)] = val_f1
+
+        if model_name == "Logistic Regression":
+            setting = "C=1.0" if stage == "baseline" else f"validation-selected C={lr_best_c}"
+        elif model_name == "Linear SVM":
+            setting = "C=1.0" if stage == "baseline" else f"validation-selected C={svm_best_c}"
+        else:
+            setting = json.dumps(model_settings[(model_name, stage)], sort_keys=True)
+        setting += f"; decision_threshold={threshold:.5f}"
+        refinement_rows.append({
+            "model": model_name,
+            "stage": stage,
+            "validation_f1": val_f1,
+            "setting": setting,
+        })
 
     # Majority-class reference baseline, calculated independently for each evaluation set.
     evaluations = [("in_domain", X_source_test, y_test)]
@@ -368,6 +423,7 @@ def run_experiment(
             row, y_true, y_pred = _evaluate(
                 model_name, stage, evaluation, model, X_eval, labels,
                 validation_scores[(model_name, stage)],
+                thresholds[(model_name, stage)],
             )
             rows.append(row)
             if stage == "refined":
