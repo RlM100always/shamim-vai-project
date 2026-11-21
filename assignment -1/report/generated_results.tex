@@ -1,49 +1,109 @@
-\begin{longtable}{ll l r r r r r}
-\caption{Unified evaluation results for all model variants.}\\
-\toprule
-Model & Stage & Test domain & Acc. & Prec. & Recall & F1 & ROC-AUC \\
-\midrule
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.98}
+\begin{longtable}{|p{4.0cm}|p{1.45cm}|p{2.1cm}|>{\centering\arraybackslash}p{1.35cm}|>{\centering\arraybackslash}p{1.35cm}|>{\centering\arraybackslash}p{1.35cm}|>{\centering\arraybackslash}p{1.35cm}|>{\centering\arraybackslash}p{1.25cm}|>{\centering\arraybackslash}p{1.45cm}|}
+\caption{Unified evaluation results for the reference baseline and all model variants.}\\
+\label{tab:results}\\
+\hline
+\rowcolor{Navy}\textcolor{white}{\textbf{Model}} & \textcolor{white}{\textbf{Stage}} & \textcolor{white}{\textbf{Test domain}} & \textcolor{white}{\textbf{Val. F1}} & \textcolor{white}{\textbf{Acc.}} & \textcolor{white}{\textbf{Prec.}} & \textcolor{white}{\textbf{Rec.}} & \textcolor{white}{\textbf{F1}} & \textcolor{white}{\textbf{ROC-AUC}} \\
+\hline
 \endfirsthead
-\toprule
-Model & Stage & Test domain & Acc. & Prec. & Recall & F1 & ROC-AUC \\
-\midrule
+\hline
+\rowcolor{Navy}\textcolor{white}{\textbf{Model}} & \textcolor{white}{\textbf{Stage}} & \textcolor{white}{\textbf{Test domain}} & \textcolor{white}{\textbf{Val. F1}} & \textcolor{white}{\textbf{Acc.}} & \textcolor{white}{\textbf{Prec.}} & \textcolor{white}{\textbf{Rec.}} & \textcolor{white}{\textbf{F1}} & \textcolor{white}{\textbf{ROC-AUC}} \\
+\hline
 \endhead
-\bottomrule
+\hline
 \endfoot
-Majority baseline & reference & Books test & 0.500 & 0.000 & 0.000 & 0.000 & -- \\
-Logistic Regression & baseline & Books test & 0.840 & 0.878 & 0.790 & 0.832 & 0.924 \\
-Logistic Regression & refined & Books test & 0.815 & 0.754 & 0.935 & 0.835 & 0.934 \\
-Linear SVM & baseline & Books test & 0.863 & 0.884 & 0.835 & 0.859 & 0.935 \\
-Linear SVM & refined & Books test & 0.807 & 0.739 & 0.950 & 0.832 & 0.926 \\
-Deep Neural Network & baseline & Books test & 0.865 & 0.880 & 0.845 & 0.862 & 0.936 \\
-Deep Neural Network & refined & Books test & 0.860 & 0.827 & 0.910 & 0.867 & 0.936 \\
-Residual MLP & baseline & Books test & 0.860 & 0.883 & 0.830 & 0.856 & 0.927 \\
-Residual MLP & refined & Books test & 0.825 & 0.762 & 0.945 & 0.844 & 0.925 \\
-Majority baseline & reference & Dvd & 0.500 & 0.000 & 0.000 & 0.000 & -- \\
-Logistic Regression & baseline & Dvd & 0.786 & 0.834 & 0.715 & 0.770 & 0.871 \\
-Logistic Regression & refined & Dvd & 0.768 & 0.711 & 0.902 & 0.795 & 0.882 \\
-Linear SVM & baseline & Dvd & 0.793 & 0.824 & 0.747 & 0.783 & 0.882 \\
-Linear SVM & refined & Dvd & 0.742 & 0.680 & 0.911 & 0.779 & 0.873 \\
-Deep Neural Network & baseline & Dvd & 0.793 & 0.820 & 0.751 & 0.784 & 0.884 \\
-Deep Neural Network & refined & Dvd & 0.799 & 0.776 & 0.843 & 0.808 & 0.887 \\
-Residual MLP & baseline & Dvd & 0.795 & 0.833 & 0.738 & 0.783 & 0.880 \\
-Residual MLP & refined & Dvd & 0.765 & 0.719 & 0.871 & 0.788 & 0.869 \\
-Majority baseline & reference & Electronics & 0.500 & 0.000 & 0.000 & 0.000 & -- \\
-Logistic Regression & baseline & Electronics & 0.745 & 0.828 & 0.617 & 0.707 & 0.830 \\
-Logistic Regression & refined & Electronics & 0.737 & 0.700 & 0.828 & 0.759 & 0.837 \\
-Linear SVM & baseline & Electronics & 0.742 & 0.840 & 0.597 & 0.698 & 0.836 \\
-Linear SVM & refined & Electronics & 0.728 & 0.695 & 0.812 & 0.749 & 0.816 \\
-Deep Neural Network & baseline & Electronics & 0.727 & 0.818 & 0.584 & 0.681 & 0.819 \\
-Deep Neural Network & refined & Electronics & 0.748 & 0.767 & 0.712 & 0.739 & 0.821 \\
-Residual MLP & baseline & Electronics & 0.730 & 0.832 & 0.575 & 0.680 & 0.826 \\
-Residual MLP & refined & Electronics & 0.709 & 0.672 & 0.815 & 0.737 & 0.808 \\
-Majority baseline & reference & Kitchen & 0.500 & 0.000 & 0.000 & 0.000 & -- \\
-Logistic Regression & baseline & Kitchen & 0.771 & 0.810 & 0.709 & 0.756 & 0.863 \\
-Logistic Regression & refined & Kitchen & 0.737 & 0.683 & 0.885 & 0.771 & 0.867 \\
-Linear SVM & baseline & Kitchen & 0.782 & 0.817 & 0.727 & 0.769 & 0.866 \\
-Linear SVM & refined & Kitchen & 0.744 & 0.695 & 0.870 & 0.773 & 0.850 \\
-Deep Neural Network & baseline & Kitchen & 0.775 & 0.811 & 0.719 & 0.762 & 0.854 \\
-Deep Neural Network & refined & Kitchen & 0.782 & 0.759 & 0.826 & 0.791 & 0.857 \\
-Residual MLP & baseline & Kitchen & 0.777 & 0.822 & 0.709 & 0.761 & 0.857 \\
-Residual MLP & refined & Kitchen & 0.728 & 0.676 & 0.875 & 0.763 & 0.846 \\
+\hline
+\endlastfoot
+\rowcolor{Pale}
+Constant-negative baseline & reference & Books test & -- & 0.500 & 0.000 & 0.000 & 0.000 & -- \\
+\hline
+Logistic Regression & baseline & Books test & 0.773 & 0.840 & 0.878 & 0.790 & 0.832 & 0.924 \\
+\hline
+\rowcolor{Pale}
+Logistic Regression & refined & Books test & 0.827 & 0.815 & 0.754 & 0.935 & 0.835 & 0.934 \\
+\hline
+Linear SVM & baseline & Books test & 0.797 & 0.863 & 0.884 & 0.835 & 0.859 & 0.935 \\
+\hline
+\rowcolor{Pale}
+Linear SVM & refined & Books test & 0.831 & 0.807 & 0.739 & 0.950 & 0.832 & 0.926 \\
+\hline
+Deep Neural Network & baseline & Books test & 0.804 & 0.865 & 0.880 & 0.845 & 0.862 & 0.936 \\
+\hline
+\rowcolor{Pale}
+Deep Neural Network & refined & Books test & 0.845 & 0.860 & 0.827 & 0.910 & 0.867 & 0.936 \\
+\hline
+Residual MLP & baseline & Books test & 0.809 & 0.860 & 0.883 & 0.830 & 0.856 & 0.927 \\
+\hline
+\rowcolor{Pale}
+Residual MLP & refined & Books test & 0.821 & 0.825 & 0.762 & 0.945 & 0.844 & 0.925 \\
+\hline
+Constant-negative baseline & reference & DVD & -- & 0.500 & 0.000 & 0.000 & 0.000 & -- \\
+\hline
+\rowcolor{Pale}
+Logistic Regression & baseline & DVD & 0.773 & 0.786 & 0.834 & 0.715 & 0.770 & 0.871 \\
+\hline
+Logistic Regression & refined & DVD & 0.827 & 0.768 & 0.711 & 0.902 & 0.795 & 0.882 \\
+\hline
+\rowcolor{Pale}
+Linear SVM & baseline & DVD & 0.797 & 0.793 & 0.824 & 0.747 & 0.783 & 0.882 \\
+\hline
+Linear SVM & refined & DVD & 0.831 & 0.742 & 0.680 & 0.911 & 0.779 & 0.873 \\
+\hline
+\rowcolor{Pale}
+Deep Neural Network & baseline & DVD & 0.804 & 0.793 & 0.820 & 0.751 & 0.784 & 0.884 \\
+\hline
+Deep Neural Network & refined & DVD & 0.845 & 0.799 & 0.776 & 0.843 & 0.808 & 0.887 \\
+\hline
+\rowcolor{Pale}
+Residual MLP & baseline & DVD & 0.809 & 0.795 & 0.833 & 0.738 & 0.783 & 0.880 \\
+\hline
+Residual MLP & refined & DVD & 0.821 & 0.765 & 0.719 & 0.871 & 0.788 & 0.869 \\
+\hline
+\rowcolor{Pale}
+Constant-negative baseline & reference & Electronics & -- & 0.500 & 0.000 & 0.000 & 0.000 & -- \\
+\hline
+Logistic Regression & baseline & Electronics & 0.773 & 0.745 & 0.828 & 0.617 & 0.707 & 0.830 \\
+\hline
+\rowcolor{Pale}
+Logistic Regression & refined & Electronics & 0.827 & 0.737 & 0.700 & 0.828 & 0.759 & 0.837 \\
+\hline
+Linear SVM & baseline & Electronics & 0.797 & 0.742 & 0.840 & 0.597 & 0.698 & 0.836 \\
+\hline
+\rowcolor{Pale}
+Linear SVM & refined & Electronics & 0.831 & 0.728 & 0.695 & 0.812 & 0.749 & 0.816 \\
+\hline
+Deep Neural Network & baseline & Electronics & 0.804 & 0.727 & 0.818 & 0.584 & 0.681 & 0.819 \\
+\hline
+\rowcolor{Pale}
+Deep Neural Network & refined & Electronics & 0.845 & 0.748 & 0.767 & 0.712 & 0.739 & 0.821 \\
+\hline
+Residual MLP & baseline & Electronics & 0.809 & 0.730 & 0.833 & 0.575 & 0.680 & 0.826 \\
+\hline
+\rowcolor{Pale}
+Residual MLP & refined & Electronics & 0.821 & 0.709 & 0.672 & 0.815 & 0.737 & 0.808 \\
+\hline
+Constant-negative baseline & reference & Kitchen & -- & 0.500 & 0.000 & 0.000 & 0.000 & -- \\
+\hline
+\rowcolor{Pale}
+Logistic Regression & baseline & Kitchen & 0.773 & 0.771 & 0.810 & 0.709 & 0.756 & 0.863 \\
+\hline
+Logistic Regression & refined & Kitchen & 0.827 & 0.737 & 0.683 & 0.885 & 0.771 & 0.867 \\
+\hline
+\rowcolor{Pale}
+Linear SVM & baseline & Kitchen & 0.797 & 0.782 & 0.817 & 0.727 & 0.769 & 0.866 \\
+\hline
+Linear SVM & refined & Kitchen & 0.831 & 0.744 & 0.695 & 0.870 & 0.773 & 0.850 \\
+\hline
+\rowcolor{Pale}
+Deep Neural Network & baseline & Kitchen & 0.804 & 0.775 & 0.811 & 0.719 & 0.762 & 0.854 \\
+\hline
+Deep Neural Network & refined & Kitchen & 0.845 & 0.782 & 0.759 & 0.826 & 0.791 & 0.857 \\
+\hline
+\rowcolor{Pale}
+Residual MLP & baseline & Kitchen & 0.809 & 0.778 & 0.822 & 0.710 & 0.762 & 0.857 \\
+\hline
+Residual MLP & refined & Kitchen & 0.821 & 0.728 & 0.676 & 0.875 & 0.763 & 0.846 \\
+\hline
 \end{longtable}

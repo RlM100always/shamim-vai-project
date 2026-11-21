@@ -1,0 +1,20 @@
+\begin{table}[H]
+\centering\small
+\caption{Baseline and refined settings selected using the Books validation set.}
+\label{tab:refinement}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|>{\centering\arraybackslash}p{2.3cm}|}
+\hline
+\rowcolor{Navy}\textcolor{white}{\textbf{Model}} & \textcolor{white}{\textbf{Baseline setting}} & \textcolor{white}{\textbf{Refined setting}} & \textcolor{white}{\textbf{Validation F1}} \\
+\hline
+Logistic Regression & C=1.0; threshold=0.50000 & C=10.0; threshold=0.37015 & 0.773 $\rightarrow$ 0.827 \\
+\hline
+Linear SVM & C=1.0; threshold=0.00000 & C=10.0; threshold=-0.30619 & 0.797 $\rightarrow$ 0.831 \\
+\hline
+Deep Neural Network & 128 units/blocks; dropout 0.2; lr 0.001; weight decay 0.0; batch 64 & 256-128 units/blocks; dropout 0.35; lr 0.0005; weight decay 0.0001; batch 64 & 0.804 $\rightarrow$ 0.845 \\
+\hline
+Residual MLP & 128 x 1 residual block units/blocks; dropout 0.15; lr 0.001; weight decay 0.0; batch 64 & 256 x 2 residual blocks units/blocks; dropout 0.25; lr 0.0005; weight decay 0.0001; batch 64 & 0.809 $\rightarrow$ 0.821 \\
+\hline
+\end{tabularx}
+\end{table}

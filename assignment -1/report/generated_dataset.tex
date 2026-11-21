@@ -1,14 +1,20 @@
-\begin{table}[ht]
+\begin{table}[H]
 \centering\small
-\caption{Number of documents used in each domain after balanced sampling.}
-\begin{tabular}{lrrr}
-\toprule
-Domain & Positive & Negative & Total \\
-\midrule
-Books & 1000 & 1000 & 2000 \\
-Dvd & 1000 & 1000 & 2000 \\
-Electronics & 1000 & 1000 & 2000 \\
-Kitchen & 1000 & 1000 & 2000 \\
-\bottomrule
+\caption{Selected review sample and distinct feature counts by domain.}
+\label{tab:dataset}
+\setlength{\tabcolsep}{7pt}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabular}{|l|r|r|r|r|}
+\hline
+\rowcolor{Navy}\textcolor{white}{\textbf{Domain}} & \textcolor{white}{\textbf{Reviews}} & \textcolor{white}{\textbf{Positive}} & \textcolor{white}{\textbf{Negative}} & \textcolor{white}{\textbf{Unique features}} \\
+\hline
+Books & 2000 & 1000 & 1000 & 195876 \\
+\hline
+DVD & 2000 & 1000 & 1000 & 188768 \\
+\hline
+Electronics & 2000 & 1000 & 1000 & 111395 \\
+\hline
+Kitchen & 2000 & 1000 & 1000 & 93468 \\
+\hline
 \end{tabular}
 \end{table}

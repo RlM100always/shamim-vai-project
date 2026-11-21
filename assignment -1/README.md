@@ -1,4 +1,4 @@
-# Applied AI Assignment 2
+# Applied AI Coursework 2 of 2 — Cross-Domain Sentiment Classification
 
 **Task:** cross-domain binary sentiment classification.  
 **Dataset:** Johns Hopkins Multi-Domain Sentiment Dataset v2.0.  
@@ -12,14 +12,14 @@
 
 ## Dataset sample
 
-Books: 2000 reviews (1000 positive, 1000 negative); Dvd: 2000 reviews (1000 positive, 1000 negative); Electronics: 2000 reviews (1000 positive, 1000 negative); Kitchen: 2000 reviews (1000 positive, 1000 negative)
+Books: 2000 reviews (1000 positive, 1000 negative); DVD: 2000 reviews (1000 positive, 1000 negative); Electronics: 2000 reviews (1000 positive, 1000 negative); Kitchen: 2000 reviews (1000 positive, 1000 negative)
 
 ## Measured results
 
 - Best refined Books test F1: Deep Neural Network (F1 0.867, accuracy 0.860).
 - Highest mean target-domain F1: Deep Neural Network (mean F1 0.779).
 - Smallest Books-to-target F1 gap: Logistic Regression (0.060).
-- Hardest target: Electronics (mean F1 0.746); easiest: Dvd (mean F1 0.792).
+- Hardest target: Electronics (mean F1 0.746); easiest: DVD (mean F1 0.792).
 
 The executed notebook, unified metrics table, refinement log, figures, trained refined model files, preprocessing objects, LaTeX source and compiled PDF are included in this folder.
 

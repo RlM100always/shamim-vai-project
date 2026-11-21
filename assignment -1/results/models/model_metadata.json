@@ -20,7 +20,7 @@
     "validation_f1": 0.803921568627451
   },
   "Deep Neural Network__refined": {
-    "decision_threshold": 0.3295643895864487,
+    "decision_threshold": 0.3295643925666809,
     "validation_f1": 0.8452380952380952
   },
   "Residual MLP__baseline": {
@@ -28,7 +28,7 @@
     "validation_f1": 0.8092105263157895
   },
   "Residual MLP__refined": {
-    "decision_threshold": 0.29148137867450713,
+    "decision_threshold": 0.2914811998605728,
     "validation_f1": 0.8212290502793296
   }
 }
