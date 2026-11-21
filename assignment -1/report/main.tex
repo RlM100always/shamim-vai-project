@@ -73,7 +73,7 @@ Domain shift occurs when the language or feature distribution changes between tr
 Deep neural text classifiers learn combinations of input features through layers of trainable weights (Minaee et al., 2021). A feed-forward DNN can model non-linear feature interactions. A residual network adds a skip connection around a block so the block learns a change to its input representation (He et al., 2016). The selected ACL data contain preprocessed feature counts rather than ordered word sequences. Feed-forward models are therefore used: an RNN, LSTM or transformer would require a sequence representation that this version of the data does not provide.
 The expected outcome is that the linear models will provide strong baselines on sparse text features, while the neural models may learn useful feature interactions. All models are expected to lose some performance on at least one target domain because product vocabulary differs.
 \section{Dataset Description}
-The dataset is the Johns Hopkins Multi-Domain Sentiment Dataset, version 2.0. It contains Amazon product reviews from several product categories. The official page provides an unprocessed archive, a preprocessed balanced binary archive and a preprocessed archive with star-rating labels. This project uses \texttt{processed_acl.tar.gz}, which follows the binary format used by Blitzer et al. (2007). Each preprocessed line contains feature-count pairs followed by a \texttt{\#label\#} field. Each directory represents a product domain.
+The dataset is the Johns Hopkins Multi-Domain Sentiment Dataset, version 2.0. It contains Amazon product reviews from several product categories. The official page provides an unprocessed archive, a preprocessed balanced binary archive and a preprocessed archive with star-rating labels. This project uses \texttt{processed\_acl.tar.gz}, which follows the binary format used by Blitzer et al. (2007). Each preprocessed line contains feature-count pairs followed by a \texttt{\#label\#} field. Each directory represents a product domain.
 Four domains are selected: Books, DVD, Electronics and Kitchen. Books is the source domain. DVD, Electronics and Kitchen are held out as target domains. The parser reads the feature-count representation and the binary label. Positive reviews are encoded as 1 and negative reviews as 0. No neutral class is introduced.
 To keep training practical and make domain comparisons balanced, the experiment samples up to 1,500 reviews from each class in each domain using a fixed random seed. If a domain contains fewer examples, all available examples are retained. The selected sample counts are reported below after the dataset is processed.
 \input{generated_dataset.tex}
@@ -110,7 +110,7 @@ The two linear methods were chosen because they are established text-classificat
 The same source split and selected features are used for every model. Each method is run in a baseline form and a refined form.
 For Logistic Regression and Linear SVM, the baseline uses (C=1.0). Refinement tests (C\in\{0.01,0.1,1,10\}) on the validation set and selects the value with the highest validation F1-score. The test and target labels are not used to select (C).
 The baseline DNN has one hidden layer with 128 units and dropout of 0.20. Its refined version uses 256 and 128 hidden units, dropout of 0.35, AdamW weight decay and early stopping. The baseline Residual MLP uses one 128-unit residual block with dropout of 0.15. Its refined version uses two 256-unit residual blocks, dropout of 0.25, weight decay, gradient clipping and early stopping. Validation loss determines the best neural checkpoint.
-The code records the validation F1-score and settings for each version in \texttt{results/refinement_comparison.csv}. The final evaluation is performed only after the refinement choices have been fixed.
+The code records the validation F1-score and settings for each version in \texttt{results/refinement\_comparison.csv}. The final evaluation is performed only after the refinement choices have been fixed.
 \section{Results and Evaluation}
 Each model is evaluated using accuracy, precision, recall, F1-score and ROC-AUC. The unified table reports the baseline and refined versions on the Books test set and each target domain. The majority-class reference is included for comparison. Higher values indicate better performance.
 \input{generated_results.tex}
@@ -134,7 +134,7 @@ J. Blitzer, M. Dredze and F. Pereira (2007). \emph{Biographies, Bollywood, Boom-
 \bibitem{pang}
 B. Pang, L. Lee and S. Vaithyanathan (2002). \emph{Thumbs up? Sentiment Classification Using Machine Learning Techniques}. Proceedings of EMNLP, pp. 79--86. \url{https://aclanthology.org/W02-1011/}.
 \bibitem{dredze}
-M. Dredze and J. Blitzer. \emph{Multi-Domain Sentiment Dataset, version 2.0}. Johns Hopkins University. \url{https://www.cs.jhu.edu/~mdredze/datasets/sentiment/}.
+Johns Hopkins University. \emph{Multi-Domain Sentiment Dataset, version 2.0}. Dataset documentation. \url{https://www.cs.jhu.edu/~mdredze/datasets/sentiment/}.
 \bibitem{minaee}
 S. Minaee et al. (2021). \emph{Deep Learning Based Text Classification: A Comprehensive Review}. ACM Computing Surveys, 54(3), Article 62. \url{https://doi.org/10.1145/3439726}.
 \bibitem{he}
