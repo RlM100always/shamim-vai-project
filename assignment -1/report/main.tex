@@ -132,6 +132,8 @@ The confusion matrices for the refined models are saved in \texttt{results/figur
 \textbf{Domain and representation bias.} The language in books, electronics, DVD and kitchen reviews differs. A model trained on Books may misclassify opinions in a target domain, and balanced sampling does not make the language or product groups representative of all customers. The mitigation is to report metrics separately for each domain, state the sampling limit and avoid using the classifier as the sole basis for decisions about sellers or customers.
 \section{Conclusion}
 This project compares two traditional classifiers and two deep neural models for cross-domain sentiment classification. It uses Books as the source domain and evaluates transfer to DVD, Electronics and Kitchen reviews. The report records model refinement and compares baseline and refined performance using five metrics. The conclusions are limited to the selected dataset, sample and domains.
+\section*{Generative AI acknowledgement}
+ChatGPT was used to assist with initial code scaffolding and report drafting. The author must verify the cited literature, inspect the code and results, and revise AI-generated model descriptions and justifications to reflect their own understanding.
 \begin{thebibliography}{9}
 \bibitem{blitzer}
 J. Blitzer, M. Dredze and F. Pereira (2007). \emph{Biographies, Bollywood, Boom-boxes and Blenders: Domain Adaptation for Sentiment Classification}. Proceedings of ACL, pp. 440--447. \url{https://aclanthology.org/P07-1056/}.
@@ -143,5 +145,7 @@ Johns Hopkins University. \emph{Multi-Domain Sentiment Dataset, version 2.0}. Da
 S. Minaee et al. (2021). \emph{Deep Learning Based Text Classification: A Comprehensive Review}. ACM Computing Surveys, 54(3), Article 62. \url{https://doi.org/10.1145/3439726}.
 \bibitem{he}
 K. He, X. Zhang, S. Ren and J. Sun (2016). \emph{Deep Residual Learning for Image Recognition}. Proceedings of CVPR, pp. 770--778. \url{https://doi.org/10.1109/CVPR.2016.90}.
+\bibitem{openai}
+OpenAI (2026). \emph{ChatGPT}. \url{https://chatgpt.com/}.
 \end{thebibliography}
 \end{document}
