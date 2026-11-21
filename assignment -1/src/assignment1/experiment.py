@@ -136,7 +136,7 @@ def _write_report_tables(metrics, sampled_summary, report_dir):
     (report_dir / "generated_results.tex").write_text("\n".join(lines), encoding="utf-8")
 
 
-def _write_discussion(metrics, report_dir):
+def _write_discussion(metrics, report_dir, refinement_rows):
     refined = metrics[metrics["stage"] == "refined"]
     source = refined[refined["evaluation"] == "in_domain"]
     target = refined[refined["evaluation"].str.startswith("cross_domain:")]
@@ -160,9 +160,18 @@ def _write_discussion(metrics, report_dir):
         f"(mean F1={domain_means.iloc[0]:.3f}), while {easiest} was the easiest "
         f"(mean F1={domain_means.iloc[-1]:.3f})."
     )
-    text = "\n".join([source_line, cross_line, domain_line])
+    refinement_lines = []
+    for model_name in ["Logistic Regression", "Linear SVM", "Deep Neural Network", "Residual MLP"]:
+        before = metrics[(metrics["model"] == model_name) & (metrics["stage"] == "baseline")]["validation_f1"].iloc[0]
+        after = metrics[(metrics["model"] == model_name) & (metrics["stage"] == "refined")]["validation_f1"].iloc[0]
+        change = after - before
+        direction = "increased" if change > 0 else ("decreased" if change < 0 else "did not change")
+        refinement_lines.append(
+            f"Validation F1 for {model_name} {direction} from {before:.3f} to {after:.3f} "
+            f"after refinement (change {change:+.3f})."
+        )
+    text = "\n".join([source_line, cross_line, domain_line] + refinement_lines)
     (report_dir / "generated_discussion.tex").write_text(text, encoding="utf-8")
-
 
 def run_experiment(
     data_dir: str | Path,
@@ -410,5 +419,5 @@ def run_experiment(
     }
     (output / "experiment_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     _write_report_tables(metrics, sampled_summary, report_dir)
-    _write_discussion(metrics, report_dir)
+    _write_discussion(metrics, report_dir, refinement_rows)
     return metrics
