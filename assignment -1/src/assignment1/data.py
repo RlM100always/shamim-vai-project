@@ -186,15 +186,20 @@ def sample_balanced_domains(
     rng = np.random.default_rng(seed)
     sampled = {}
     for domain, records in sorted(dataset.items()):
+        indices_by_class = {
+            label: np.array([i for i, row in enumerate(records) if row.label == label])
+            for label in (0, 1)
+        }
+        # Use equal counts from both classes, capped at max_per_class.
+        n = min(max_per_class, len(indices_by_class[0]), len(indices_by_class[1]))
+        if n == 0:
+            continue
         chosen = []
         for label in (0, 1):
-            indices = np.array([i for i, row in enumerate(records) if row.label == label])
-            if len(indices) > max_per_class:
-                indices = rng.choice(indices, size=max_per_class, replace=False)
+            indices = rng.choice(indices_by_class[label], size=n, replace=False)
             chosen.extend(records[int(i)] for i in indices)
         rng.shuffle(chosen)
-        if chosen:
-            sampled[domain] = chosen
+        sampled[domain] = chosen
     return sampled
 
 
