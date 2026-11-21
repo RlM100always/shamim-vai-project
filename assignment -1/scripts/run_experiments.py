@@ -11,13 +11,13 @@ from assignment1.experiment import run_experiment
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run Applied AI Assignment 1 experiments.")
+    parser = argparse.ArgumentParser(description="Run the four-model cross-domain experiment.")
     parser.add_argument("--data-dir", default=str(ROOT / "data" / "raw" / "processed_acl"))
     parser.add_argument("--output-dir", default=str(ROOT / "results"))
     parser.add_argument("--source-domain", default="books")
-    parser.add_argument("--target-domains", nargs="*", default=None)
-    parser.add_argument("--max-features", type=int, default=10000)
-    parser.add_argument("--epochs", type=int, default=20)
+    parser.add_argument("--target-domains", nargs="*", default=["dvd", "electronics", "kitchen"])
+    parser.add_argument("--max-per-class", type=int, default=1500)
+    parser.add_argument("--max-features", type=int, default=5000)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
@@ -26,8 +26,8 @@ def main() -> None:
         output_dir=args.output_dir,
         source_domain=args.source_domain,
         target_domains=args.target_domains,
+        max_per_class=args.max_per_class,
         max_features=args.max_features,
-        epochs=args.epochs,
         seed=args.seed,
     )
     print(metrics.to_string(index=False))
