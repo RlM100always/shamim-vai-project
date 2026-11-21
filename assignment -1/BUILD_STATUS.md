@@ -1,16 +1,32 @@
 # Build status
 
-The project now follows the coursework specification:
+Status: Successful
 
-- One approved dataset: Multi-Domain Sentiment Dataset v2.0.
-- One NLP task: Books-to-DVD/Electronics/Kitchen cross-domain binary sentiment classification.
-- Exactly two traditional models: Logistic Regression and Linear SVM.
-- Exactly two deep models: DNN and Residual MLP.
-- Baseline and refined versions for all four models.
-- Stratified source split, validation-only tuning, target-domain holdout.
-- Unified evaluation table, class-balance plot, feature-frequency plot, adaptation-gap plot and confusion matrices.
-- LaTeX report with a designed cover page and generated word count.
+- Official Multi-Domain Sentiment Dataset v2.0 downloaded and processed.
+- Four domains sampled with equal positive and negative classes.
+- Exactly two traditional models and two deep models trained.
+- Baseline and refined versions evaluated.
+- Validation-only hyperparameter and decision-threshold selection.
+- Trained refined model weights and preprocessing objects saved under results/models.
+- Notebook executed with visible outputs.
+- Unified metrics table, refinement log and figures generated.
+- LaTeX report compiled; word count: 2,338.
 
-The full workflow downloads the official JHU archive, executes the notebook, generates metrics and figures, inserts them into the report, compiles the PDF and commits generated outputs. The official archive is not stored in Git.
+## Measured results
 
-No real-data metrics are included until the GitHub Actions run completes successfully. Check the workflow run and the generated files before submission.
+- Best refined Books test F1: Deep Neural Network (F1 0.867, accuracy 0.860).
+- Highest mean target-domain F1: Deep Neural Network (mean F1 0.779).
+- Smallest Books-to-target F1 gap: Logistic Regression (0.060).
+- Hardest target: Electronics (mean F1 0.746); easiest: Dvd (mean F1 0.792).
+
+## Files
+
+- Notebook: notebooks/assignment_1_sentiment_analysis.ipynb
+- Report source: report/main.tex
+- Compiled report: report/main.pdf
+- Model metrics: results/metrics_summary.csv
+- Refinement log: results/refinement_comparison.csv
+- Trained artifacts: results/models/
+- Figures: results/figures/
+
+The raw dataset is not committed to Git. The download script retrieves it from the official JHU source.
