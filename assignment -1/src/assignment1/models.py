@@ -40,6 +40,7 @@ def make_linear_svm(C: float):
 
 
 def _build_torch_model(kind: str, stage: str, input_dim: int):
+    import torch
     import torch.nn as nn
 
     refined = stage == "refined"
