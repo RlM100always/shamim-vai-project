@@ -179,7 +179,7 @@ def load_multidomain_dataset(data_dir: str | Path) -> dict[str, list[ReviewRecor
 
 def sample_balanced_domains(
     dataset: dict[str, list[ReviewRecord]],
-    max_per_class: int = 1500,
+    max_per_class: int = 1000,
     seed: int = 42,
 ) -> dict[str, list[ReviewRecord]]:
     """Deterministically sample up to max_per_class reviews from each class/domain."""
