@@ -14,6 +14,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: assignment1-full-run-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   run-project:
     if: ${{ !contains(github.event.head_commit.message, '[bot]') }}
@@ -75,7 +79,13 @@ jobs:
           git add -f "assignment -1/report/generated_dataset.tex" "assignment -1/report/generated_results.tex" "assignment -1/report/generated_discussion.tex" "assignment -1/report/generated_wordcount.tex" "assignment -1/report/main.pdf"
           git add -f "assignment -1/assignment-1-full-project.zip"
           git commit -m "[bot] add executed notebook, measured results, report and project zip" || echo "No generated changes to commit"
-          git push
+          git fetch origin main
+          if git log --format=%s HEAD..origin/main | grep -qv '^\[bot\]'; then
+            git rebase origin/main
+            git push origin HEAD:main
+          else
+            git push --force-with-lease=refs/heads/main:$(git rev-parse origin/main) origin HEAD:main
+          fi
 
       - name: Upload complete coursework outputs
         uses: actions/upload-artifact@v4
