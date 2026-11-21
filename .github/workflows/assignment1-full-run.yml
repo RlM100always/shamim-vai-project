@@ -39,7 +39,7 @@ jobs:
       - name: Install LaTeX
         run: |
           sudo apt-get update
-          sudo apt-get install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended texlive-latex-extra texlive-extra-utils
+          sudo apt-get install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended texlive-latex-extra texlive-extra-utils texlive-pictures
 
       - name: Install CPU dependencies
         working-directory: assignment -1
@@ -79,7 +79,7 @@ jobs:
           git add -f "assignment -1/notebooks/assignment_1_sentiment_analysis.ipynb"
           git add -f "assignment -1/README.md" "assignment -1/BUILD_STATUS.md"
           git add -f "assignment -1/results"
-          git add -f "assignment -1/report/generated_dataset.tex" "assignment -1/report/generated_results.tex" "assignment -1/report/generated_discussion.tex" "assignment -1/report/generated_wordcount.tex" "assignment -1/report/main.pdf"
+          git add -f "assignment -1/report/generated_dataset.tex" "assignment -1/report/generated_refinement.tex" "assignment -1/report/generated_results.tex" "assignment -1/report/generated_discussion.tex" "assignment -1/report/generated_wordcount.tex" "assignment -1/report/main.pdf"
           git add -f "assignment -1/assignment-1-full-project.zip"
           git commit -m "[bot] add executed notebook, measured results, report and project zip" || echo "No generated changes to commit"
           git fetch origin main
