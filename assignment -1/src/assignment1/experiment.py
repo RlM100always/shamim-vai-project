@@ -618,6 +618,7 @@ def run_experiment(
     ax.set_ylabel("Refined model")
     ax.grid(axis="x", alpha=0.25)
     fig.tight_layout()
+    fig.savefig(figures / "model_adaptation_gap.png", dpi=180, bbox_inches="tight")
     plt.close(fig)
 
     # Compare refined F1 and ROC-AUC across the source and all target domains.
