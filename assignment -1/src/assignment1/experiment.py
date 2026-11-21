@@ -3,27 +3,31 @@ from __future__ import annotations
 from pathlib import Path
 import json
 import re
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.feature_extraction import DictVectorizer
-from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.model_selection import train_test_split
+from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.metrics import (
-    accuracy_score, precision_score, recall_score, f1_score,
-    roc_auc_score, ConfusionMatrixDisplay,
+    accuracy_score, precision_score, recall_score, f1_score, roc_auc_score,
+    ConfusionMatrixDisplay,
+)
+from sklearn.model_selection import train_test_split
+
+from .data import (
+    load_multidomain_dataset, dataset_summary, records_to_xy,
+    sample_balanced_domains,
+)
+from .models import (
+    make_logistic_regression, make_linear_svm, train_deep_model,
 )
 
-from .data import load_multidomain_dataset, dataset_summary, records_to_xy
-from .models import build_traditional_models, train_deep_model
 
-
-def _safe_name(value: str) -> str:
-    return re.sub(r"[^a-zA-Z0-9_-]+", "_", value.strip()).strip("_").lower()
-
-
-def _score_vector(model, X):
+def _score(model, X):
     if hasattr(model, "predict_proba"):
         return model.predict_proba(X)[:, 1]
     if hasattr(model, "decision_function"):
@@ -31,31 +35,36 @@ def _score_vector(model, X):
     return model.predict(X).astype(float)
 
 
-def _evaluate(model_name: str, evaluation_name: str, model, X, y):
+def _evaluate(model_name, stage, evaluation, model, X, y, validation_f1):
     y_true = np.asarray(y, dtype=int)
-    y_pred = np.asarray(model.predict(X), dtype=int)
-    scores = np.asarray(_score_vector(model, X), dtype=float)
+    prediction = np.asarray(model.predict(X), dtype=int)
+    scores = np.asarray(_score(model, X), dtype=float)
     auc = float("nan")
     if len(np.unique(y_true)) == 2:
         try:
             auc = float(roc_auc_score(y_true, scores))
         except ValueError:
             pass
-    row = {
+    return {
         "model": model_name,
-        "evaluation": evaluation_name,
-        "n_test": int(len(y_true)),
-        "accuracy": float(accuracy_score(y_true, y_pred)),
-        "precision": float(precision_score(y_true, y_pred, zero_division=0)),
-        "recall": float(recall_score(y_true, y_pred, zero_division=0)),
-        "f1": float(f1_score(y_true, y_pred, zero_division=0)),
+        "stage": stage,
+        "evaluation": evaluation,
+        "n_test": len(y_true),
+        "validation_f1": float(validation_f1),
+        "accuracy": float(accuracy_score(y_true, prediction)),
+        "precision": float(precision_score(y_true, prediction, zero_division=0)),
+        "recall": float(recall_score(y_true, prediction, zero_division=0)),
+        "f1": float(f1_score(y_true, prediction, zero_division=0)),
         "roc_auc": auc,
-    }
-    return row, y_true, y_pred
+    }, y_true, prediction
 
 
-def _save_confusion(y_true, y_pred, title: str, path: Path) -> None:
-    fig, ax = plt.subplots(figsize=(4.6, 4.0))
+def _safe(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_")
+
+
+def _save_confusion(y_true, y_pred, title, path):
+    fig, ax = plt.subplots(figsize=(4.2, 3.6))
     ConfusionMatrixDisplay.from_predictions(
         y_true, y_pred, labels=[0, 1],
         display_labels=["Negative", "Positive"],
@@ -67,24 +76,92 @@ def _save_confusion(y_true, y_pred, title: str, path: Path) -> None:
     plt.close(fig)
 
 
-def _write_latex_results(metrics: pd.DataFrame, report_dir: Path) -> None:
+def _latex_escape(value) -> str:
+    text = str(value)
+    for char, replacement in [
+        ("\\", r"\textbackslash{}"), ("&", r"\&"), ("%", r"\%"),
+        ("$", r"\$"), ("#", r"\#"), ("_", r"\_"),
+        ("{", r"\{"), ("}", r"\}"), ("~", r"\textasciitilde{}"),
+        ("^", r"\textasciicircum{}"),
+    ]:
+        text = text.replace(char, replacement)
+    return text
+
+
+def _write_report_tables(metrics, sampled_summary, report_dir):
     report_dir.mkdir(parents=True, exist_ok=True)
-    output = report_dir / "generated_results.tex"
-    if metrics.empty:
-        output.write_text(
-            r"\textit{No experiment results are available yet. Run the experiment script after downloading the official dataset.}",
-            encoding="utf-8",
+
+    dataset_lines = [
+        r"\begin{table}[ht]",
+        r"\centering\small",
+        r"\caption{Number of documents used in each domain after balanced sampling.}",
+        r"\begin{tabular}{lrrr}",
+        r"\toprule",
+        r"Domain & Positive & Negative & Total \\",
+        r"\midrule",
+    ]
+    for row in sampled_summary:
+        dataset_lines.append(
+            f"{_latex_escape(row['domain'].title())} & {row['positive']} & {row['negative']} & {row['documents']} " + r"\\"
         )
-        return
-    preferred = ["model", "evaluation", "accuracy", "precision", "recall", "f1", "roc_auc"]
-    view = metrics[preferred].copy()
-    for col in ["accuracy", "precision", "recall", "f1", "roc_auc"]:
-        view[col] = view[col].map(lambda x: "--" if pd.isna(x) else f"{x:.3f}")
-    latex = view.to_latex(
-        index=False, escape=True, column_format="llrrrrr",
-        caption="Measured model performance", label="tab:measured-results"
+    dataset_lines.extend([r"\bottomrule", r"\end{tabular}", r"\end{table}"])
+    (report_dir / "generated_dataset.tex").write_text("\n".join(dataset_lines), encoding="utf-8")
+
+    table = metrics.copy()
+    lines = [
+        r"\begin{longtable}{ll l r r r r r}",
+        r"\caption{Unified evaluation results for all model variants.}\\",
+        r"\toprule",
+        r"Model & Stage & Test domain & Acc. & Prec. & Recall & F1 & ROC-AUC \\",
+        r"\midrule",
+        r"\endfirsthead",
+        r"\toprule",
+        r"Model & Stage & Test domain & Acc. & Prec. & Recall & F1 & ROC-AUC \\",
+        r"\midrule",
+        r"\endhead",
+        r"\bottomrule",
+        r"\endfoot",
+    ]
+    for _, row in table.iterrows():
+        evaluation = "Books test" if row["evaluation"] == "in_domain" else row["evaluation"].replace("cross_domain:", "").title()
+        values = []
+        for key in ["accuracy", "precision", "recall", "f1", "roc_auc"]:
+            value = row[key]
+            values.append("--" if pd.isna(value) else f"{value:.3f}")
+        lines.append(
+            f"{_latex_escape(row['model'])} & {_latex_escape(row['stage'])} & "
+            f"{_latex_escape(evaluation)} & " + " & ".join(values) + r" \\"
+        )
+    lines.append(r"\end{longtable}")
+    (report_dir / "generated_results.tex").write_text("\n".join(lines), encoding="utf-8")
+
+
+def _write_discussion(metrics, report_dir):
+    refined = metrics[metrics["stage"] == "refined"]
+    source = refined[refined["evaluation"] == "in_domain"]
+    target = refined[refined["evaluation"].str.startswith("cross_domain:")]
+    best_source = source.sort_values("f1", ascending=False).iloc[0]
+    cross_mean = target.groupby("model", as_index=False)["f1"].mean().sort_values("f1", ascending=False)
+    best_cross = cross_mean.iloc[0]
+    domain_means = target.groupby("evaluation")["f1"].mean().sort_values()
+    hardest = domain_means.index[0].replace("cross_domain:", "").title()
+    easiest = domain_means.index[-1].replace("cross_domain:", "").title()
+
+    source_line = (
+        f"The strongest refined in-domain result was {best_source['model']} "
+        f"(F1={best_source['f1']:.3f}; accuracy={best_source['accuracy']:.3f})."
     )
-    output.write_text(latex, encoding="utf-8")
+    cross_line = (
+        f"The highest mean target-domain F1 was obtained by {best_cross['model']} "
+        f"(mean F1={best_cross['f1']:.3f})."
+    )
+    domain_line = (
+        f"Across the refined models, {hardest} was the most difficult target domain "
+        f"(mean F1={domain_means.iloc[0]:.3f}), while {easiest} was the easiest "
+        f"(mean F1={domain_means.iloc[-1]:.3f})."
+    )
+    text = "\n".join([source_line, cross_line, domain_line])
+    (report_dir / "generated_discussion.tex").write_text(text, encoding="utf-8")
 
 
 def run_experiment(
@@ -92,41 +169,76 @@ def run_experiment(
     output_dir: str | Path,
     source_domain: str = "books",
     target_domains: list[str] | None = None,
-    max_features: int = 10000,
-    epochs: int = 20,
+    max_per_class: int = 1500,
+    max_features: int = 5000,
     seed: int = 42,
-) -> pd.DataFrame:
-    """Run in-domain and source-to-target sentiment classification experiments."""
+):
+    """Run two traditional and two deep models, each before and after refinement."""
     output = Path(output_dir)
     figures = output / "figures"
     output.mkdir(parents=True, exist_ok=True)
     figures.mkdir(parents=True, exist_ok=True)
+    report_dir = Path(__file__).resolve().parents[2] / "report"
 
-    dataset = load_multidomain_dataset(data_dir)
-    domains = sorted(dataset)
+    full = load_multidomain_dataset(data_dir)
+    available = sorted(full)
     source_domain = source_domain.lower()
-    if source_domain not in dataset:
-        raise ValueError(f"Source domain '{source_domain}' not found. Available domains: {', '.join(domains)}")
+    if source_domain not in full:
+        raise ValueError(f"Source domain '{source_domain}' not found. Available: {available}")
 
     if target_domains is None:
-        preferred = [d for d in ["dvd", "electronics", "kitchen"] if d in dataset and d != source_domain]
-        target_domains = preferred or [d for d in domains if d != source_domain][:3]
-    target_domains = [d.lower() for d in target_domains if d.lower() in dataset and d.lower() != source_domain]
+        target_domains = ["dvd", "electronics", "kitchen"]
+    targets = [d.lower() for d in target_domains if d.lower() in full and d.lower() != source_domain]
+    if not targets:
+        raise ValueError(f"None of the requested target domains are available. Available: {available}")
 
-    pd.DataFrame(dataset_summary(dataset)).to_csv(output / "dataset_summary.csv", index=False)
-    source_x, source_y = records_to_xy(dataset[source_domain])
-    X_core, X_test, y_core, y_test = train_test_split(
+    selected_domains = [source_domain] + targets
+    full = {domain: full[domain] for domain in selected_domains}
+    full_summary = dataset_summary(full)
+    sampled = sample_balanced_domains(full, max_per_class=max_per_class, seed=seed)
+    sampled_summary = dataset_summary(sampled)
+    pd.DataFrame(full_summary).to_csv(output / "dataset_summary_full.csv", index=False)
+    pd.DataFrame(sampled_summary).to_csv(output / "dataset_summary.csv", index=False)
+
+    # Exploratory class-balance plot.
+    summary_frame = pd.DataFrame(sampled_summary).set_index("domain")
+    ax = summary_frame[["positive", "negative"]].plot(kind="bar", figsize=(8, 4))
+    ax.set_title("Balanced review sample by product domain")
+    ax.set_xlabel("Product domain")
+    ax.set_ylabel("Number of reviews")
+    ax.legend(["Positive", "Negative"])
+    ax.grid(axis="y", alpha=0.25)
+    plt.tight_layout()
+    plt.savefig(figures / "domain_class_balance.png", dpi=180, bbox_inches="tight")
+    plt.close()
+
+    # Token-frequency plot from the selected source domain.
+    feature_counts = {}
+    for row in sampled[source_domain]:
+        for feature, count in row.features.items():
+            feature_counts[feature] = feature_counts.get(feature, 0.0) + count
+    top_tokens = sorted(feature_counts.items(), key=lambda item: item[1], reverse=True)[:15]
+    token_frame = pd.DataFrame(top_tokens, columns=["token", "count"]).sort_values("count")
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.barh(token_frame["token"], token_frame["count"])
+    ax.set_title(f"Most frequent features in {source_domain.title()} training domain")
+    ax.set_xlabel("Total feature count")
+    fig.tight_layout()
+    fig.savefig(figures / "top_source_features.png", dpi=180, bbox_inches="tight")
+    plt.close(fig)
+
+    source_x, source_y = records_to_xy(sampled[source_domain])
+    X_train_records, X_test_records, y_train, y_test = train_test_split(
         source_x, source_y, test_size=0.20, random_state=seed, stratify=source_y
     )
     X_train_records, X_valid_records, y_train, y_valid = train_test_split(
-        X_core, y_core, test_size=0.20, random_state=seed, stratify=y_core
+        X_train_records, y_train, test_size=0.20, random_state=seed, stratify=y_train
     )
 
-    # Fit vocabulary, TF-IDF weights and feature selection on training data only.
     vectorizer = DictVectorizer(sparse=True, sort=True)
     X_train_counts = vectorizer.fit_transform(X_train_records)
     X_valid_counts = vectorizer.transform(X_valid_records)
-    X_test_counts = vectorizer.transform(X_test)
+    X_test_counts = vectorizer.transform(X_test_records)
     tfidf = TfidfTransformer(sublinear_tf=True)
     X_train_tfidf = tfidf.fit_transform(X_train_counts)
     X_valid_tfidf = tfidf.transform(X_valid_counts)
@@ -138,74 +250,165 @@ def run_experiment(
     X_valid = selector.transform(X_valid_tfidf)
     X_source_test = selector.transform(X_test_tfidf)
 
-    target_matrices = {}
-    for target in target_domains:
-        tx, ty = records_to_xy(dataset[target])
-        matrix = selector.transform(tfidf.transform(vectorizer.transform(tx)))
-        target_matrices[target] = (matrix, ty)
+    target_sets = {}
+    for domain in targets:
+        target_x, target_y = records_to_xy(sampled[domain])
+        target_sets[domain] = (selector.transform(tfidf.transform(vectorizer.transform(target_x))), target_y)
 
-    model_objects = {}
-    for name, model in build_traditional_models().items():
-        model.fit(X_train, np.asarray(y_train))
-        model_objects[name] = model
+    models = {}
+    validation_scores = {}
+    refinement_rows = []
 
-    # The processed ACL representation has no word order. Feed-forward networks
-    # avoid inventing token order for recurrent or transformer architectures.
+    # Traditional model 1: Logistic Regression.
+    lr_base = make_logistic_regression(1.0)
+    lr_base.fit(X_train, y_train)
+    models[("Logistic Regression", "baseline")] = lr_base
+    validation_scores[("Logistic Regression", "baseline")] = f1_score(
+        y_valid, lr_base.predict(X_valid), zero_division=0
+    )
+
+    lr_candidates = []
+    for c_value in [0.01, 0.1, 1.0, 10.0]:
+        candidate = make_logistic_regression(c_value)
+        candidate.fit(X_train, y_train)
+        score = f1_score(y_valid, candidate.predict(X_valid), zero_division=0)
+        lr_candidates.append((score, c_value, candidate))
+    lr_best_score, lr_best_c, lr_refined = max(lr_candidates, key=lambda item: item[0])
+    models[("Logistic Regression", "refined")] = lr_refined
+    validation_scores[("Logistic Regression", "refined")] = lr_best_score
+    refinement_rows.extend([
+        {"model": "Logistic Regression", "stage": "baseline", "validation_f1": validation_scores[("Logistic Regression", "baseline")], "setting": "C=1.0"},
+        {"model": "Logistic Regression", "stage": "refined", "validation_f1": lr_best_score, "setting": f"validation-selected C={lr_best_c}"},
+    ])
+
+    # Traditional model 2: Linear SVM.
+    svm_base = make_linear_svm(1.0)
+    svm_base.fit(X_train, y_train)
+    models[("Linear SVM", "baseline")] = svm_base
+    validation_scores[("Linear SVM", "baseline")] = f1_score(
+        y_valid, svm_base.predict(X_valid), zero_division=0
+    )
+
+    svm_candidates = []
+    for c_value in [0.01, 0.1, 1.0, 10.0]:
+        candidate = make_linear_svm(c_value)
+        candidate.fit(X_train, y_train)
+        score = f1_score(y_valid, candidate.predict(X_valid), zero_division=0)
+        svm_candidates.append((score, c_value, candidate))
+    svm_best_score, svm_best_c, svm_refined = max(svm_candidates, key=lambda item: item[0])
+    models[("Linear SVM", "refined")] = svm_refined
+    validation_scores[("Linear SVM", "refined")] = svm_best_score
+    refinement_rows.extend([
+        {"model": "Linear SVM", "stage": "baseline", "validation_f1": validation_scores[("Linear SVM", "baseline")], "setting": "C=1.0"},
+        {"model": "Linear SVM", "stage": "refined", "validation_f1": svm_best_score, "setting": f"validation-selected C={svm_best_c}"},
+    ])
+
+    # Deep models use the same selected source-domain features.
     X_train_dense = X_train.toarray().astype(np.float32)
     X_valid_dense = X_valid.toarray().astype(np.float32)
-    model_objects["Deep Neural Network"] = train_deep_model(
-        "dnn", X_train_dense, np.asarray(y_train, dtype=np.float32),
-        X_valid_dense, np.asarray(y_valid, dtype=np.float32),
-        epochs=epochs, seed=seed,
-    )
-    model_objects["Residual MLP"] = train_deep_model(
-        "residual_mlp", X_train_dense, np.asarray(y_train, dtype=np.float32),
-        X_valid_dense, np.asarray(y_valid, dtype=np.float32),
-        epochs=epochs, seed=seed,
-    )
+    y_train_array = np.asarray(y_train, dtype=np.float32)
+    y_valid_array = np.asarray(y_valid, dtype=np.float32)
 
-    evaluations = [("in_domain", X_source_test, y_test)]
-    evaluations.extend((f"cross_domain:{name}", matrix, labels)
-                       for name, (matrix, labels) in target_matrices.items())
-    rows = []
-    for model_name, model in model_objects.items():
-        for evaluation_name, matrix, labels in evaluations:
-            X_eval = matrix.toarray().astype(np.float32) if model_name in {
-                "Deep Neural Network", "Residual MLP"
-            } else matrix
-            row, y_true, y_pred = _evaluate(model_name, evaluation_name, model, X_eval, labels)
-            rows.append(row)
-            _save_confusion(
-                y_true, y_pred, f"{model_name} — {evaluation_name}",
-                figures / f"confusion_{_safe_name(model_name)}_{_safe_name(evaluation_name)}.png",
+    for model_name, kind in [
+        ("Deep Neural Network", "dnn"),
+        ("Residual MLP", "residual_mlp"),
+    ]:
+        for stage in ["baseline", "refined"]:
+            predictor, val_f1, settings = train_deep_model(
+                kind, stage, X_train_dense, y_train_array,
+                X_valid_dense, y_valid_array, seed=seed,
             )
+            models[(model_name, stage)] = predictor
+            validation_scores[(model_name, stage)] = val_f1
+            refinement_rows.append({
+                "model": model_name,
+                "stage": stage,
+                "validation_f1": val_f1,
+                "setting": json.dumps(settings, sort_keys=True),
+            })
+
+    # Majority-class reference baseline, calculated independently for each evaluation set.
+    evaluations = [("in_domain", X_source_test, y_test)]
+    evaluations.extend(
+        (f"cross_domain:{domain}", matrix, labels)
+        for domain, (matrix, labels) in target_sets.items()
+    )
+    rows = []
+    refined_confusions = []
+    for evaluation, matrix, labels in evaluations:
+        majority_label = int(pd.Series(y_train).mode().iloc[0])
+        majority_predictions = np.full(len(labels), majority_label, dtype=int)
+        majority_scores = majority_predictions.astype(float)
+        majority_row = {
+            "model": "Majority baseline",
+            "stage": "reference",
+            "evaluation": evaluation,
+            "n_test": len(labels),
+            "validation_f1": float("nan"),
+            "accuracy": float(accuracy_score(labels, majority_predictions)),
+            "precision": float(precision_score(labels, majority_predictions, zero_division=0)),
+            "recall": float(recall_score(labels, majority_predictions, zero_division=0)),
+            "f1": float(f1_score(labels, majority_predictions, zero_division=0)),
+            "roc_auc": float("nan"),
+        }
+        rows.append(majority_row)
+
+        for (model_name, stage), model in models.items():
+            is_deep = model_name in {"Deep Neural Network", "Residual MLP"}
+            X_eval = matrix.toarray().astype(np.float32) if is_deep else matrix
+            row, y_true, y_pred = _evaluate(
+                model_name, stage, evaluation, model, X_eval, labels,
+                validation_scores[(model_name, stage)],
+            )
+            rows.append(row)
+            if stage == "refined":
+                refined_confusions.append((model_name, evaluation, y_true, y_pred))
 
     metrics = pd.DataFrame(rows)
     metrics.to_csv(output / "metrics_summary.csv", index=False)
     metrics.to_json(output / "metrics_summary.json", orient="records", indent=2)
+    pd.DataFrame(refinement_rows).to_csv(output / "refinement_comparison.csv", index=False)
 
-    fig, ax = plt.subplots(figsize=(10, 5.5))
-    metrics.pivot(index="model", columns="evaluation", values="f1").plot(kind="bar", ax=ax)
-    ax.set_ylabel("F1-score")
-    ax.set_ylim(0, 1)
-    ax.set_title("F1-score by model and evaluation domain")
-    ax.legend(title="Evaluation", bbox_to_anchor=(1.02, 1), loc="upper left")
-    ax.grid(axis="y", alpha=0.25)
+    # Confusion matrices for the four refined models only.
+    for model_name, evaluation, y_true, y_pred in refined_confusions:
+        _save_confusion(
+            y_true, y_pred, f"{model_name} — {evaluation}",
+            figures / f"confusion_{_safe(model_name)}_{_safe(evaluation)}.png",
+        )
+
+    # Adaptation-gap chart: source-domain F1 minus mean target-domain F1.
+    refined = metrics[metrics["stage"] == "refined"]
+    source_scores = refined[refined["evaluation"] == "in_domain"].set_index("model")["f1"]
+    target_scores = refined[refined["evaluation"].str.startswith("cross_domain:")].groupby("model")["f1"].mean()
+    gaps = (source_scores - target_scores).sort_values()
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    ax.barh(gaps.index, gaps.values)
+    ax.axvline(0, linewidth=1)
+    ax.set_title("In-domain to cross-domain F1 gap after refinement")
+    ax.set_xlabel("Books test F1 minus mean target-domain F1")
+    ax.set_ylabel("Refined model")
+    ax.grid(axis="x", alpha=0.25)
     fig.tight_layout()
-    fig.savefig(figures / "model_f1_comparison.png", dpi=180, bbox_inches="tight")
+    fig.savefig(figures / "model_adaptation_gap.png", dpi=180, bbox_inches="tight")
     plt.close(fig)
 
     metadata = {
+        "dataset": "Multi-Domain Sentiment Dataset version 2.0",
+        "task": "Cross-domain binary sentiment classification",
         "source_domain": source_domain,
-        "target_domains": target_domains,
-        "domains_available": domains,
-        "n_train": len(y_train),
-        "n_validation": len(y_valid),
-        "n_source_test": len(y_test),
+        "target_domains": targets,
+        "domains_available": available,
+        "max_per_class_per_domain": max_per_class,
+        "sampled_documents": {row["domain"]: row["documents"] for row in sampled_summary},
+        "source_train": len(y_train),
+        "source_validation": len(y_valid),
+        "source_test": len(y_test),
         "selected_features": int(X_train.shape[1]),
         "seed": seed,
-        "models": list(model_objects),
+        "models": ["Logistic Regression", "Linear SVM", "Deep Neural Network", "Residual MLP"],
+        "refinement": "Validation-tuned C for traditional models; refined architecture, dropout, weight decay and early stopping for neural models.",
     }
     (output / "experiment_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    _write_latex_results(metrics, Path(__file__).resolve().parents[2] / "report")
+    _write_report_tables(metrics, sampled_summary, report_dir)
+    _write_discussion(metrics, report_dir)
     return metrics
