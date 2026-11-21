@@ -618,7 +618,123 @@ def run_experiment(
     ax.set_ylabel("Refined model")
     ax.grid(axis="x", alpha=0.25)
     fig.tight_layout()
-    fig.savefig(figures / "model_adaptation_gap.png", dpi=180, bbox_inches="tight")
+    plt.close(fig)
+
+    # Compare refined F1 and ROC-AUC across the source and all target domains.
+    model_order = [
+        "Logistic Regression", "Linear SVM",
+        "Deep Neural Network", "Residual MLP",
+    ]
+    evaluation_order = ["in_domain"] + [f"cross_domain:{domain}" for domain in targets]
+    domain_labels = [source_domain.title()] + [domain.title() for domain in targets]
+    refined_domain = metrics[
+        (metrics["stage"] == "refined") & metrics["model"].isin(model_order)
+    ]
+    f1_pivot = refined_domain.pivot(
+        index="evaluation", columns="model", values="f1"
+    ).reindex(evaluation_order)
+    fig, ax = plt.subplots(figsize=(9, 4.8))
+    for model_name in model_order:
+        ax.plot(
+            domain_labels, f1_pivot[model_name].values,
+            marker="o", linewidth=2, label=model_name,
+        )
+    ax.set_ylim(0.65, 0.90)
+    ax.set_title("Refined F1 across the source and target domains")
+    ax.set_xlabel("Evaluation domain")
+    ax.set_ylabel("F1-score")
+    ax.grid(axis="y", alpha=0.25)
+    ax.legend(ncol=2, frameon=False)
+    fig.tight_layout()
+    fig.savefig(figures / "f1_by_domain_refined.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+
+    # Compare the average target-domain F1 before and after refinement.
+    target_rows = metrics[
+        metrics["evaluation"].str.startswith("cross_domain:")
+        & metrics["stage"].isin(["baseline", "refined"])
+        & metrics["model"].isin(model_order)
+    ]
+    target_mean = target_rows.groupby(["model", "stage"])["f1"].mean().unstack()
+    target_mean = target_mean.reindex(model_order)
+    x = np.arange(len(model_order))
+    width = 0.34
+    fig, ax = plt.subplots(figsize=(9, 4.8))
+    baseline_bars = ax.bar(x - width / 2, target_mean["baseline"], width, label="Baseline")
+    refined_bars = ax.bar(x + width / 2, target_mean["refined"], width, label="Refined")
+    ax.bar_label(baseline_bars, fmt="%.3f", padding=2, fontsize=8)
+    ax.bar_label(refined_bars, fmt="%.3f", padding=2, fontsize=8)
+    ax.set_xticks(x, model_order, rotation=12, ha="right")
+    ax.set_ylim(0.68, 0.83)
+    ax.set_ylabel("Mean F1 across DVD, Electronics and Kitchen")
+    ax.set_title("Target-domain F1 before and after refinement")
+    ax.grid(axis="y", alpha=0.25)
+    ax.legend(frameon=False)
+    fig.tight_layout()
+    fig.savefig(figures / "refinement_target_f1.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+
+    # ROC-AUC comparison provides a threshold-independent view of ranking quality.
+    auc_pivot = refined_domain.pivot(
+        index="evaluation", columns="model", values="roc_auc"
+    ).reindex(evaluation_order)
+    fig, ax = plt.subplots(figsize=(9, 4.8))
+    for model_name in model_order:
+        ax.plot(
+            domain_labels, auc_pivot[model_name].values,
+            marker="o", linewidth=2, label=model_name,
+        )
+    ax.set_ylim(0.78, 0.97)
+    ax.set_title("Refined ROC-AUC across the source and target domains")
+    ax.set_xlabel("Evaluation domain")
+    ax.set_ylabel("ROC-AUC")
+    ax.grid(axis="y", alpha=0.25)
+    ax.legend(ncol=2, frameon=False)
+    fig.tight_layout()
+    fig.savefig(figures / "roc_auc_by_domain_refined.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+
+    # Show the shared preprocessing path and the four classifiers compared.
+    from matplotlib.patches import FancyBboxPatch
+    fig, ax = plt.subplots(figsize=(11, 3.8))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
+
+    def add_node(x0, y0, width0, height0, label):
+        node = FancyBboxPatch(
+            (x0, y0), width0, height0,
+            boxstyle="round,pad=0.012",
+            linewidth=1.25, edgecolor="0.25", facecolor="white",
+        )
+        ax.add_patch(node)
+        ax.text(
+            x0 + width0 / 2, y0 + height0 / 2, label,
+            ha="center", va="center", fontsize=9, wrap=True,
+        )
+
+    add_node(0.02, 0.38, 0.15, 0.24, "Amazon reviews\nBooks source\n3 target domains")
+    add_node(0.21, 0.38, 0.15, 0.24, "Custom parser\nSparse counts\nBinary labels")
+    add_node(0.40, 0.38, 0.18, 0.24, "TF-IDF\nChi-square selection\n5,000 features")
+    add_node(0.66, 0.66, 0.16, 0.22, "Traditional\nLogistic Regression\nLinear SVM")
+    add_node(0.66, 0.12, 0.16, 0.22, "Deep learning\nDNN\nResidual MLP")
+    add_node(0.86, 0.38, 0.12, 0.24, "Sentiment\nPositive /\nNegative")
+    arrows = [
+        ((0.17, 0.50), (0.21, 0.50)),
+        ((0.36, 0.50), (0.40, 0.50)),
+        ((0.58, 0.55), (0.66, 0.77)),
+        ((0.58, 0.45), (0.66, 0.23)),
+        ((0.82, 0.77), (0.86, 0.56)),
+        ((0.82, 0.23), (0.86, 0.44)),
+    ]
+    for start, end in arrows:
+        ax.annotate(
+            "", xy=end, xytext=start,
+            arrowprops={"arrowstyle": "->", "linewidth": 1.35, "color": "0.25"},
+        )
+    ax.set_title("Shared preprocessing and model comparison workflow", pad=10)
+    fig.tight_layout()
+    fig.savefig(figures / "model_pipeline.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
 
     metadata = {

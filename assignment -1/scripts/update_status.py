@@ -74,7 +74,7 @@ def main() -> None:
 
 {metrics_text}
 
-The executed notebook, unified metrics table, refinement log, figures, trained refined model files, preprocessing objects, LaTeX source and compiled PDF are included in this folder.
+The executed notebook, unified metrics table, refinement log, figures, trained refined model files, preprocessing objects, LaTeX source and compiled PDF are included in this folder. The workflow also creates `assignment-1-full-project.zip` and a separate `assignment-1-latex-report-with-images.zip`.
 
 ## Run locally
 

@@ -67,6 +67,14 @@ jobs:
           cd ..
           python scripts/update_status.py
 
+      - name: Package LaTeX report and figures ZIP
+        working-directory: assignment -1
+        run: |
+          zip -qr assignment-1-latex-report-with-images.zip \
+            report/main.tex report/main.pdf report/README.md report/generated_*.tex \
+            results/figures results/metrics_summary.csv results/refinement_comparison.csv \
+            results/dataset_summary.csv
+
       - name: Package full project ZIP
         working-directory: assignment -1
         run: |
@@ -80,7 +88,7 @@ jobs:
           git add -f "assignment -1/README.md" "assignment -1/BUILD_STATUS.md"
           git add -f "assignment -1/results"
           git add -f "assignment -1/report/generated_dataset.tex" "assignment -1/report/generated_refinement.tex" "assignment -1/report/generated_results.tex" "assignment -1/report/generated_discussion.tex" "assignment -1/report/generated_wordcount.tex" "assignment -1/report/main.pdf"
-          git add -f "assignment -1/assignment-1-full-project.zip"
+          git add -f "assignment -1/assignment-1-full-project.zip" "assignment -1/assignment-1-latex-report-with-images.zip"
           git commit -m "[bot] add executed notebook, measured results, report and project zip" || echo "No generated changes to commit"
           git fetch origin main
           if git log --format=%s HEAD..origin/main | grep -qv '^\[bot\]'; then
@@ -101,3 +109,4 @@ jobs:
             assignment -1/report/main.tex
             assignment -1/report/generated_*.tex
             assignment -1/assignment-1-full-project.zip
+            assignment -1/assignment-1-latex-report-with-images.zip

@@ -15,9 +15,7 @@
 \usepackage{caption}
 \usepackage{titlesec}
 \usepackage{needspace}
-\usepackage{tikz}
 \usepackage[hidelinks]{hyperref}
-\usetikzlibrary{arrows.meta,positioning,calc}
 
 \definecolor{Navy}{HTML}{14243A}
 \definecolor{NavyLight}{HTML}{203B59}
@@ -51,11 +49,7 @@
 \begin{titlepage}
 \pagecolor{Navy}
 \color{white}
-\begin{tikzpicture}[remember picture,overlay]
-  \fill[Teal] (current page.north west) rectangle ([yshift=-0.13cm]current page.north east);
-  \draw[white!10,line width=0.5pt] ([xshift=0.9cm,yshift=-1.25cm]current page.north west) -- ([xshift=-0.9cm,yshift=-1.25cm]current page.north east);
-  \draw[white!8,line width=0.5pt] ([xshift=0.9cm,yshift=1.0cm]current page.south west) -- ([xshift=-0.9cm,yshift=1.0cm]current page.south east);
-\end{tikzpicture}
+\noindent{\color{Teal}\rule{\textwidth}{2pt}\par}
 \vspace*{0.65cm}
 {\Large\sffamily\bfseries UNIVERSITY OF HULL\par}
 \vspace{0.15cm}
@@ -71,21 +65,12 @@
 \vspace{0.25cm}
 {\small\color{white!75}Comparing traditional machine learning with feed-forward deep learning\par}
 \vspace{0.75cm}
-\begin{tikzpicture}[node distance=0.42cm and 0.62cm,>=Latex,
-  domainnode/.style={draw=Teal!90,fill=NavyLight,rounded corners=2pt,text=white,font=\small\sffamily,minimum width=2.2cm,minimum height=0.62cm},
-  model/.style={draw=white!70,fill=NavyLight,rounded corners=3pt,draw=Teal,text=white,font=\small\sffamily\bfseries,minimum width=3.0cm,minimum height=0.95cm},
-  output/.style={draw=Teal,fill=NavyLight,rounded corners=2pt,text=white,font=\scriptsize\sffamily,minimum width=1.45cm,minimum height=0.55cm}]
-  \node[domainnode] (books) {BOOKS};
-  \node[domainnode,below=of books] (dvd) {DVD};
-  \node[domainnode,below=of dvd] (elec) {ELECTRONICS};
-  \node[domainnode,below=of elec] (kitchen) {KITCHEN};
-  \node[model,right=1.45cm of dvd] (classifier) {SENTIMENT\ CLASSIFIERS};
-  \node[output,right=1.0cm of classifier,yshift=0.34cm] (positive) {POSITIVE};
-  \node[output,right=1.0cm of classifier,yshift=-0.34cm] (negative) {NEGATIVE};
-  \foreach \n in {books,dvd,elec,kitchen}{\draw[Teal!85,thick,-{Latex[length=2mm]}] (\n.east) -- (classifier.west);}
-  \draw[white!75,thick,-{Latex[length=2mm]}] (classifier.east) -- (positive.west);
-  \draw[white!75,thick,-{Latex[length=2mm]}] (classifier.east) -- (negative.west);
-\end{tikzpicture}
+\vspace{0.55cm}
+{\small\sffamily\color{white!75}SOURCE DOMAIN\par}
+{\large\sffamily\bfseries BOOKS\par}
+\vspace{0.20cm}
+{\small\sffamily\color{white!75}TARGET DOMAINS\par}
+{\large\sffamily\bfseries DVD \textbullet{} ELECTRONICS \textbullet{} KITCHEN\par}
 \vfill
 \colorbox{white}{%
   \parbox{\dimexpr\textwidth-2\fboxsep}{%
@@ -118,7 +103,7 @@ Product reviews use different vocabulary across categories. Books reviews discus
 
 Four classifiers train on Books reviews and are evaluated on a held-out Books test set and on DVD, Electronics and Kitchen reviews. Transfer between product categories is difficult: structural correspondence learning reduced relative adaptation error by an average of 46\% against a supervised baseline in an Amazon review study \cite{blitzer}.
 
-The questions are how accurately the models classify Books reviews and which transfers most consistently. All models use the same split and features. Books is the source domain. The project does not implement domain adaptation, detect sarcasm, use reviewer metadata or claim coverage of every Amazon category.
+The questions are how accurately the models classify Books reviews and which transfers most consistently. All models use the same split and features. Books is the source domain. The project does not implement domain adaptation, detect sarcasm, use reviewer metadata or claim coverage of every Amazon category. The target domains are used only for final evaluation. No target labels influence vocabulary selection, hyperparameter choice or decision thresholds, so the scores measure direct transfer from Books rather than domain adaptation.
 
 \section{Background}
 Sentiment classification assigns positive or negative polarity to a review. Unlike topic classification, it can depend on context and negation. Early review experiments found that Naive Bayes, maximum-entropy models and Support Vector Machines could identify sentiment, but that it was harder than topic categorisation \cite{pang}.
@@ -127,7 +112,7 @@ Domain shift occurs when feature distributions differ between training and test 
 
 Deep learning can learn feature combinations beyond a linear boundary. A review of more than 150 text-classification models covers deep architectures for sentiment and other NLP tasks \cite{minaee}. A feed-forward sentiment network reached 88.2\% validation accuracy on the Keras IMDB benchmark; a polarity-weighted version trained on the Stanford Large Movie Review Dataset reached 91.76\% transfer accuracy on IMDB \cite{vassilev}. These results support testing dense models on fixed-length text features, although their datasets and splits differ from this project.
 
-Residual connections add a transformed representation to its input. The original study demonstrated this approach in image recognition \cite{he}; here, the connection principle is adapted to a text-feature MLP. The hypothesis is that linear models will be strong on sparse vectors, while neural models may benefit from non-linear combinations. All models are expected to lose some F1 on at least one target domain.
+Residual connections add a transformed representation to its input. The original study demonstrated this approach in image recognition \cite{he}; here, the connection principle is adapted to a text-feature MLP. The hypothesis is that linear models will be strong on sparse vectors, while neural models may benefit from non-linear combinations. All models are expected to lose some F1 on at least one target domain. A wider review covers more than 150 deep text-classification models, including architectures used for sentiment analysis \cite{minaee}. This project tests feed-forward networks because the selected archive supplies fixed feature vectors rather than ordered token sequences.
 
 \section{Dataset Description}
 The project uses the Johns Hopkins Multi-Domain Sentiment Dataset, version 2.0. The official source provides unprocessed reviews, a balanced binary archive and a preprocessed star-rating archive. The selected \texttt{processed\_acl.tar.gz} file stores one review per line as feature-count pairs followed by a binary label; each directory represents a product domain \cite{jhu}.
@@ -141,7 +126,7 @@ The original reviews are unstructured text, but the selected archive converts th
 \section{Data Analysis}
 The four domains are balanced, so no resampling is required. A constant-negative reference predictor is used because the classes are tied; it achieves 0.500 accuracy and 0.000 positive-class F1. The class-balance chart confirms equal class counts, while the feature-frequency chart shows common Books terms.
 
-The vocabulary, TF--IDF weights and chi-square selector are fitted on Books training data only. Validation, test and target records use those fitted objects, preventing evaluation data from influencing feature selection. Target-domain terms absent from the Books vocabulary cannot contribute to predictions. Frequent Books features include \texttt{book}, \texttt{story}, \texttt{good} and \texttt{great}. Negation terms such as \texttt{not} and \texttt{never} are retained because removing them can reverse review meaning.
+The vocabulary, TF--IDF weights and chi-square selector are fitted on Books training data only. Validation, test and target records use those fitted objects, preventing evaluation data from influencing feature selection. Target-domain terms absent from the Books vocabulary cannot contribute to predictions. Frequent Books features include \texttt{book}, \texttt{story}, \texttt{good} and \texttt{great}. Negation terms such as \texttt{not} and \texttt{never} are retained because removing them can reverse review meaning. Books has the largest domain vocabulary (195,876 distinct features) and Kitchen the smallest (93,468). These are corpus-level counts, not the number of terms in a typical review. A Books-fitted vocabulary gives every model the same input space, but target-only words are lost.
 
 \begin{figure}[H]
 \centering
@@ -159,6 +144,13 @@ The vocabulary, TF--IDF weights and chi-square selector are fitted on Books trai
 \section{Methods}
 Each review is a sparse token-count vector. TF--IDF down-weights common terms and chi-square selection retains up to 5,000 source-training features. All models receive the same representation.
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.98\textwidth]{../results/figures/model_pipeline.png}
+\caption{Shared preprocessing path and the four classifiers compared in the experiment.}
+\label{fig:pipeline}
+\end{figure}
+
 \subsection{Traditional machine learning}
 \textbf{Logistic Regression} converts a weighted feature sum into a positive-class probability:
 \[
@@ -166,12 +158,18 @@ P(y=1\mid x)=\frac{1}{1+\exp(-(w^\top x+b))}.
 \]
 It suits sparse text and provides probability scores for ROC-AUC. The log-linear approach is related to maximum-entropy models used in early review sentiment experiments \cite{pang}. Its linear boundary cannot represent complex term interactions without extra features.
 
-\textbf{Linear Support Vector Machine} separates the classes by maximising the margin. It is a strong choice for high-dimensional sparse text and was evaluated directly in early review sentiment experiments \cite{pang}. Its scores are not calibrated probabilities, and its linear boundary limits feature interactions.
+\textbf{Linear Support Vector Machine} separates the classes by maximising the margin. It is a strong choice for high-dimensional sparse text and was evaluated directly in early review sentiment experiments \cite{pang}. Its scores are not calibrated probabilities, and its linear boundary limits feature interactions. The soft-margin objective minimises
+\[
+\frac{1}{2}\lVert w\rVert^2+C\sum_i \xi_i,
+\qquad
+y_i(w^\top x_i+b)\geq 1-\xi_i,\quad \xi_i\geq0.
+\]
+The parameter \(C\) controls the balance between a wider margin and classification errors.
 
 \subsection{Deep learning}
 \textbf{Deep Neural Network (DNN)} uses fully connected layers and ReLU activations to learn non-linear combinations of word features. Dropout reduces reliance on individual hidden units. It suits fixed-length vectors but does not learn word order and may overfit a small sample. Feed-forward sentiment models have also been tested successfully with multi-hot review features \cite{vassilev}.
 
-\textbf{Residual Multi-Layer Perceptron (Residual MLP)} adds each block's transformed representation to its input. This creates a deeper feature learner while preserving a direct information path. Its extra parameters may capture interactions, but may overfit the Books sample. The skip-connection principle is adapted from residual learning, whose original evidence came from image recognition \cite{he}.
+\textbf{Residual Multi-Layer Perceptron (Residual MLP)} adds each block's transformed representation to its input. This creates a deeper feature learner while preserving a direct information path. Its extra parameters may capture interactions, but may overfit the Books sample. The skip-connection principle is adapted from residual learning, whose original evidence came from image recognition \cite{he}. The refined DNN maps 5,000 selected features through 256 and 128 ReLU units to one output logit. The Residual MLP projects the same input to 256 units, then uses two blocks; each block applies two linear layers with layer normalisation and dropout before adding its input back. Both learn feature combinations, but neither preserves word order.
 
 The linear models are text-classification baselines; the neural models test non-linear feature learning. RNNs, LSTMs and transformers are not used because the archive has no ordered token sequence. Evaluation uses accuracy, precision, recall, F1 and ROC-AUC. F1 balances precision and recall; ROC-AUC measures ranking across thresholds.
 
@@ -180,9 +178,16 @@ Each model has a baseline and refined version. Baseline Logistic Regression and 
 
 The baseline DNN has one 128-unit hidden layer, dropout 0.20 and learning rate 0.001. Its refined form has 256- and 128-unit layers, dropout 0.35, learning rate 0.0005 and AdamW weight decay 0.0001. The baseline Residual MLP has one 128-unit block and dropout 0.15; its refined form has two 256-unit blocks, dropout 0.25 and weight decay 0.0001. Both use batches of 64 and validation-loss early stopping; refined neural models also use gradient clipping. The best validation checkpoint is retained.
 
-Validation F1 rises for all refined models, but this does not guarantee a higher test score. Both stages are therefore evaluated on held-out data. The neural networks use binary cross-entropy with logits and AdamW; dropout and weight decay reduce reliance on individual features. Early stopping selects the checkpoint with the lowest validation loss, while a fixed random seed controls the split and initialisation. The experiment records the selected settings, validation scores and decision thresholds so that each refinement can be checked against the code.
+Validation F1 rises for all refined models, but this does not guarantee a higher test score. Both stages are therefore evaluated on held-out data. The neural networks use binary cross-entropy with logits and AdamW; dropout and weight decay reduce reliance on individual features. Early stopping selects the checkpoint with the lowest validation loss, while a fixed random seed controls the split and initialisation. The experiment records the selected settings, validation scores and decision thresholds so that each refinement can be checked against the code. For each refined linear model, C is selected from 0.01, 0.1, 1 and 10. A second search tests the default threshold and 101 quantiles of the validation scores. The selected threshold is fixed before Books test and target-domain evaluation. The refined DNN's best checkpoint was epoch 7; the Residual MLP's was epoch 1, suggesting that the larger residual model did not benefit from longer training on this split.
 
 \input{generated_refinement.tex}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.86\textwidth]{../results/figures/refinement_target_f1.png}
+\caption{Mean target-domain F1 for each model before and after refinement.}
+\label{fig:refinement}
+\end{figure}
 
 \section{Results and Evaluation}
 Table 3 compares the reference predictor and all model stages using validation F1, accuracy, precision, recall, F1 and ROC-AUC.
@@ -193,12 +198,24 @@ Table 3 compares the reference predictor and all model stages using validation F
 
 The refined DNN gives the strongest Books test result (F1=0.867; accuracy=0.860) and the highest mean target F1 (0.779). Its target average is only 0.004 above Logistic Regression (0.775), a small difference; no significance test was performed. Logistic Regression has the smallest Books-to-target F1 gap (0.060), compared with 0.065 for Linear SVM, 0.081 for Residual MLP and 0.087 for DNN. It transfers most consistently, while DNN has the highest target average.
 
-Electronics is the hardest target (mean F1=0.746); DVD is easiest (0.792), followed by Kitchen (0.774). Different product vocabulary may explain some of the Electronics drop, although this cause was not tested. The results support the hypothesis that domain changes reduce performance, with the size of the drop depending on both model and category.
+Electronics is the hardest target (mean F1=0.746); DVD is easiest (0.792), followed by Kitchen (0.774). Different product vocabulary may explain some of the Electronics drop, although this cause was not tested. The results support the hypothesis that domain changes reduce performance, with the size of the drop depending on both model and category. The refined-model F1 chart shows the same ranking across all four domains, while the ROC-AUC chart provides a threshold-independent view of how well each model ranks positive reviews. On Electronics, the confusion grid shows that the DNN made 216 false-positive and 288 false-negative predictions; Logistic Regression made 355 and 172 respectively. The DNN therefore missed more positive reviews but made fewer false-positive calls, matching its higher precision and lower recall on this target.
 
 Refinement did not improve every Books test result. DNN F1 rose from 0.862 to 0.867 and Logistic Regression from 0.832 to 0.835. Linear SVM fell from 0.859 to 0.832; Residual MLP fell from 0.856 to 0.844. However, all refined models improved their mean target F1 over their own baselines. DNN gained 0.037, the largest target-domain increase. Validation improvements therefore cannot be treated as proof of better test performance.
 
 Threshold selection changes the precision--recall balance. Refined Logistic Regression on Books raises recall from 0.790 to 0.935, while precision falls from 0.878 to 0.754. F1 changes only from 0.832 to 0.835, and accuracy falls from 0.840 to 0.815. This is a validation-F1 trade-off, not a gain in every metric. The SVM and Residual MLP declines suggest that validation tuning may not transfer perfectly. One reason may be that the validation set is drawn from Books, while the final target domains have different feature distributions. The DNN may benefit from non-linear combinations of review terms, but its target-average advantage over Logistic Regression is small. The linear model is therefore still a reasonable choice when simplicity and consistent transfer matter more than the highest average F1. The adaptation-gap chart summarises transfer consistency; the Electronics confusion matrices show class-specific errors. The evaluation contains one fixed split and does not include confidence intervals or repeated-seed significance tests, so small differences should be interpreted cautiously.
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{../results/figures/f1_by_domain_refined.png}
+\caption{Refined F1-score for each model on Books, DVD, Electronics and Kitchen.}
+\label{fig:f1domains}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.90\textwidth]{../results/figures/roc_auc_by_domain_refined.png}
+\caption{Refined ROC-AUC for each model across the source and target domains.}
+\label{fig:aucdomains}
+\end{figure}
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.76\textwidth]{../results/figures/model_adaptation_gap.png}
@@ -217,7 +234,7 @@ The results imply that a linear model remains a practical option when transfer c
 \section{Legal, Social, Ethical, Cultural and Professional Implications}
 \textbf{Customer-generated content.} Reviews were written by customers for a retail platform and may contain personal details. Public availability does not automatically permit republication. This project uses the official preprocessed feature-count archive, publishes no raw review text or reviewer identifiers, excludes the raw archive from GitHub and cites the dataset. The provider's terms should still be checked before reuse beyond this coursework.
 
-\textbf{Domain and representation bias.} The sample covers four Amazon categories from one platform and balances positive and negative reviews. It does not reflect natural opinion frequencies or represent other markets, languages or cultural expectations. A Books-trained model may misclassify Electronics or Kitchen language. Mitigations are per-domain reporting, explicit sample limits, testing on new markets before deployment and human review before predictions inform decisions about sellers, products or customers. The system should not rank reviewers or infer demographic characteristics.
+\textbf{Domain and representation bias.} The sample covers four Amazon categories from one platform and balances positive and negative reviews. It does not reflect natural opinion frequencies or represent other markets, languages or cultural expectations. A Books-trained model may misclassify Electronics or Kitchen language. Mitigations are per-domain reporting, explicit sample limits, testing on new markets before deployment and human review before predictions inform decisions about sellers, products or customers. The system should not rank reviewers or infer demographic characteristics. For professional use, any category-specific deployment would need new labelled checks, drift monitoring and a human review route; these results alone do not justify automated decisions about customers or sellers.
 
 \Needspace{7\baselineskip}
 \section{Conclusion}

@@ -16,7 +16,7 @@ def main() -> None:
     parser.add_argument("--output-dir", default=str(ROOT / "results"))
     parser.add_argument("--source-domain", default="books")
     parser.add_argument("--target-domains", nargs="*", default=["dvd", "electronics", "kitchen"])
-    parser.add_argument("--max-per-class", type=int, default=1500)
+    parser.add_argument("--max-per-class", type=int, default=1000)
     parser.add_argument("--max-features", type=int, default=5000)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
