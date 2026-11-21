@@ -1,152 +1,252 @@
 \documentclass[11pt,a4paper]{article}
-\usepackage[a4paper,margin=0.82in,headheight=14pt]{geometry}
+\usepackage[a4paper,margin=0.78in,headheight=22pt,footskip=24pt]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{microtype}
 \usepackage{setspace}
-\usepackage{booktabs,longtable,array,graphicx,float,amsmath,enumitem,xcolor,fancyhdr,hyperref,caption,titlesec}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{array,tabularx,longtable}
+\usepackage[table]{xcolor}
+\usepackage{pdflscape}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{titlesec}
+\usepackage{needspace}
+\usepackage{tikz}
+\usepackage[hidelinks]{hyperref}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
 \definecolor{Navy}{HTML}{14243A}
-\definecolor{Teal}{HTML}{20B7A5}
+\definecolor{NavyLight}{HTML}{203B59}
+\definecolor{Teal}{HTML}{22B8A6}
+\definecolor{Pale}{HTML}{EAF2F7}
 \definecolor{Ink}{HTML}{263544}
-\setstretch{1.08}
+\definecolor{Rule}{HTML}{52677B}
+
+\setstretch{1.07}
 \setlength{\parskip}{4pt}
 \setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{3em}
 \setlist{nosep,leftmargin=*}
-\captionsetup{font=small,labelfont=bf}
-\titleformat{\section}{\large\bfseries\color{Navy}}{\thesection}{0.65em}{}
-\titleformat{\subsection}{\normalsize\bfseries\color{Ink}}{\thesubsection}{0.6em}{}
+\captionsetup{font=small,labelfont=bf,skip=5pt}
+\titleformat{\section}{\large\sffamily\bfseries\color{Navy}}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\normalsize\sffamily\bfseries\color{Ink}}{\thesubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{10pt}{4pt}
+\titlespacing*{\subsection}{0pt}{7pt}{3pt}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\small Applied Artificial Intelligence}
-\fancyhead[R]{\small Project Report}
-\fancyfoot[C]{\thepage}
-\renewcommand{\headrulewidth}{0.3pt}
+\fancyhead[L]{\small\sffamily\color{Navy}Applied Artificial Intelligence}
+\fancyhead[R]{\small\sffamily\color{Navy}NLP Project Report}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.45pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{Teal}\leaders\hrule height \headrulewidth\hfill}}
+\urlstyle{same}
+
 \begin{document}
+
 \hypersetup{pageanchor=false}
 \begin{titlepage}
 \pagecolor{Navy}
 \color{white}
-\noindent{\color{Teal}\rule{\textwidth}{3pt}}\par
-\vspace{0.8cm}
-{\large\bfseries UNIVERSITY OF HULL\par}
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[Teal] (current page.north west) rectangle ([yshift=-0.13cm]current page.north east);
+  \draw[white!10,line width=0.5pt] ([xshift=0.9cm,yshift=-1.25cm]current page.north west) -- ([xshift=-0.9cm,yshift=-1.25cm]current page.north east);
+  \draw[white!8,line width=0.5pt] ([xshift=0.9cm,yshift=1.0cm]current page.south west) -- ([xshift=-0.9cm,yshift=1.0cm]current page.south east);
+\end{tikzpicture}
+\vspace*{0.65cm}
+{\Large\sffamily\bfseries UNIVERSITY OF HULL\par}
 \vspace{0.15cm}
-{\small APPLIED ARTIFICIAL INTELLIGENCE\par}
-{\small COURSEWORK 2 OF 2\par}
-\vspace{1.8cm}
-{\color{Teal}\Large\bfseries NLP PROJECT REPORT\par}
-\vspace{0.5cm}
-{\fontsize{29}{34}\selectfont\bfseries Cross-Domain\par}
-{\fontsize{29}{34}\selectfont\bfseries Sentiment Classification\par}
-\vspace{0.35cm}
-{\large Amazon product reviews across four domains\par}
-\vspace{1.0cm}
-{\color{Teal}\rule{0.22\textwidth}{2pt}}\par
-\vfill
-\noindent\colorbox{white}{%
-\parbox{\dimexpr\textwidth-2\fboxsep}{%
-\color{Navy}
-\begin{tabular}{@{}p{0.29\textwidth}p{0.63\textwidth}@{}}
-\textbf{Module} & Applied Artificial Intelligence\\[0.30cm]
-\textbf{Lecturer} & Dr Aarzoo Dhiman\\[0.30cm]
-\textbf{Student name} & \rule{0.95\linewidth}{0.4pt}\\[0.30cm]
-\textbf{Student ID} & \rule{0.95\linewidth}{0.4pt}\\[0.30cm]
-\textbf{Word count} & \input{generated_wordcount.tex}\\[0.30cm]
-\textbf{Deadline} & 3 December 2026, 14:00\\
-\end{tabular}
-}}
-\par
-\vspace{0.6cm}
-{\small Dataset: Multi-Domain Sentiment Dataset, version 2.0\par}
-{\small Task: Binary sentiment classification with cross-domain evaluation\par}
+{\small\sffamily APPLIED ARTIFICIAL INTELLIGENCE\par}
+{\small\sffamily COURSEWORK 2 OF 2\par}
+\vspace{1.45cm}
+{\color{Teal}\large\sffamily\bfseries NLP PROJECT REPORT\par}
 \vspace{0.45cm}
-\noindent{\color{Teal}\rule{\textwidth}{3pt}}\par
+{\fontsize{30}{35}\selectfont\sffamily\bfseries Cross-Domain\par}
+{\fontsize{30}{35}\selectfont\sffamily\bfseries Sentiment Classification\par}
+\vspace{0.35cm}
+{\large\sffamily Amazon product reviews across four domains\par}
+\vspace{0.25cm}
+{\small\color{white!75}Comparing traditional machine learning with feed-forward deep learning\par}
+\vspace{0.75cm}
+\begin{tikzpicture}[node distance=0.42cm and 0.62cm,>=Latex,
+  domainnode/.style={draw=Teal!90,fill=NavyLight,rounded corners=2pt,text=white,font=\small\sffamily,minimum width=2.2cm,minimum height=0.62cm},
+  model/.style={draw=white!70,fill=NavyLight,rounded corners=3pt,draw=Teal,text=white,font=\small\sffamily\bfseries,minimum width=3.0cm,minimum height=0.95cm},
+  output/.style={draw=Teal,fill=NavyLight,rounded corners=2pt,text=white,font=\scriptsize\sffamily,minimum width=1.45cm,minimum height=0.55cm}]
+  \node[domainnode] (books) {BOOKS};
+  \node[domainnode,below=of books] (dvd) {DVD};
+  \node[domainnode,below=of dvd] (elec) {ELECTRONICS};
+  \node[domainnode,below=of elec] (kitchen) {KITCHEN};
+  \node[model,right=1.45cm of dvd] (classifier) {SENTIMENT\ CLASSIFIERS};
+  \node[output,right=1.0cm of classifier,yshift=0.34cm] (positive) {POSITIVE};
+  \node[output,right=1.0cm of classifier,yshift=-0.34cm] (negative) {NEGATIVE};
+  \foreach \n in {books,dvd,elec,kitchen}{\draw[Teal!85,thick,-{Latex[length=2mm]}] (\n.east) -- (classifier.west);}
+  \draw[white!75,thick,-{Latex[length=2mm]}] (classifier.east) -- (positive.west);
+  \draw[white!75,thick,-{Latex[length=2mm]}] (classifier.east) -- (negative.west);
+\end{tikzpicture}
+\vfill
+\colorbox{white}{%
+  \parbox{\dimexpr\textwidth-2\fboxsep}{%
+    \color{Navy}\sffamily
+    \begin{tabularx}{\linewidth}{@{}>{\bfseries}p{0.20\linewidth}X>{\bfseries}p{0.19\linewidth}X@{}}
+      Module & Applied Artificial Intelligence & Lecturer & Dr Aarzoo Dhiman\\[0.20cm]
+      Student name & \rule{\linewidth}{0.4pt} & Student ID & \rule{\linewidth}{0.4pt}\\[0.20cm]
+      Word count & \input{generated_wordcount.tex} & Deadline & 3 December 2026, 14:00\\
+    \end{tabularx}
+  }}
+\par
+\vspace{0.45cm}
+{\small\sffamily Dataset: Multi-Domain Sentiment Dataset, version 2.0\par}
+{\small\sffamily Task: Binary sentiment classification with cross-domain evaluation\par}
+\vspace{0.3cm}
+{\color{Teal}\rule{\textwidth}{2pt}\par}
 \end{titlepage}
-\nopagecolor
 \hypersetup{pageanchor=true}
-\pagenumbering{arabic}
+\nopagecolor
 \color{black}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
 \begin{abstract}
-This project tests whether sentiment classifiers trained on Amazon book reviews transfer to DVD, electronics and kitchen reviews. Two traditional models, Logistic Regression and Linear Support Vector Machine, are compared with a feed-forward Deep Neural Network and a Residual Multi-Layer Perceptron. Each model is evaluated before and after a documented refinement. The official preprocessed binary dataset is used. Evaluation includes accuracy, precision, recall, F1-score and ROC-AUC.
+This project tests whether sentiment models trained on Amazon Books reviews transfer to DVD, Electronics and Kitchen reviews. It compares Logistic Regression and Linear Support Vector Machine with a Deep Neural Network and a Residual Multi-Layer Perceptron. The official balanced binary version of the Johns Hopkins Multi-Domain Sentiment Dataset is used. Each model is evaluated in a baseline and refined form. Accuracy, precision, recall, F1-score and ROC-AUC are reported for a held-out Books test set and three unseen product domains. The Deep Neural Network obtains the highest refined mean target-domain F1-score (0.779), while Logistic Regression has the smallest source-to-target F1 gap (0.060). All four models show a performance drop outside Books.
 \end{abstract}
+
 \section{Introduction}
-Product reviews express opinions in different ways across product categories. A model trained on books may learn terms that do not appear in electronics or kitchen reviews. The task in this project is cross-domain binary sentiment classification: train on the Books domain, then test the same models on Books, DVD, Electronics and Kitchen data.
-This task follows the assignment's suggested cross-domain generalisation problem. It is useful because a classifier that works only on the domain used for training has limited value when a business wants to analyse reviews from other product categories. Blitzer, Dredze and Pereira (2007) found that sentiment classifiers lose accuracy when the test domain differs from the training domain. Their Amazon review experiments reported 72.8\% accuracy for a DVD-to-Books supervised baseline, compared with 79.7\% for their SCL-MI adaptation method and 80.4\% for an in-domain model.
-The project measures the transfer performance of four specified classifiers on the selected domains. It does not claim to solve domain adaptation, identify sarcasm, infer reviewer characteristics or represent every Amazon product category.
+Product reviews use different vocabulary across categories. Books reviews discuss plot and writing; Electronics reviews may focus on battery life and reliability. A model trained on one category may rely on terms that are less useful in another. This project tests cross-domain binary sentiment classification.
+
+Four classifiers train on Books reviews and are evaluated on a held-out Books test set and on DVD, Electronics and Kitchen reviews. Transfer between product categories is difficult: structural correspondence learning reduced relative adaptation error by an average of 46\% against a supervised baseline in an Amazon review study \cite{blitzer}.
+
+The questions are how accurately the models classify Books reviews and which transfers most consistently. All models use the same split and features. Books is the source domain. The project does not implement domain adaptation, detect sarcasm, use reviewer metadata or claim coverage of every Amazon category.
+
 \section{Background}
-Sentiment classification assigns a polarity label to text. Pang, Lee and Vaithyanathan (2002) compared Naive Bayes, maximum-entropy classification and Support Vector Machines for review sentiment, showing that standard text classifiers can be applied to opinion data, although sentiment is harder than ordinary topic categorisation. Logistic Regression is a discriminative linear classifier; Linear SVM separates classes by maximising the margin. Both are suitable for sparse text representations.
-Domain shift occurs when the language or feature distribution changes between training and test data. In product reviews, terms describing product functions may be domain-specific, while opinion words such as \emph{excellent} or \emph{awful} can transfer across categories. Blitzer et al. (2007) studied this problem on Books, DVDs, Electronics and Kitchen reviews. Their results motivate testing each target domain separately rather than relying on one random train/test split.
-Deep neural text classifiers learn combinations of input features through layers of trainable weights (Minaee et al., 2021). A feed-forward DNN can model non-linear feature interactions. A residual network adds a skip connection around a block so the block learns a change to its input representation (He et al., 2016). The selected ACL data contain preprocessed feature counts rather than ordered word sequences. Feed-forward models are therefore used: an RNN, LSTM or transformer would require a sequence representation that this version of the data does not provide.
-The expected outcome is that the linear models will provide strong baselines on sparse text features, while the neural models may learn useful feature interactions. All models are expected to lose some performance on at least one target domain because product vocabulary differs.
+Sentiment classification assigns positive or negative polarity to a review. Unlike topic classification, it can depend on context and negation. Early review experiments found that Naive Bayes, maximum-entropy models and Support Vector Machines could identify sentiment, but that it was harder than topic categorisation \cite{pang}.
+
+Domain shift occurs when feature distributions differ between training and test data. Product-specific terms may help in one category but be irrelevant in another. In the Amazon benchmark, structural correspondence learning reduced relative adaptation error by 30\% over the original method and 46\% over a supervised baseline \cite{blitzer}. This motivates reporting target domains separately.
+
+Deep learning can learn feature combinations beyond a linear boundary. A review of more than 150 text-classification models covers deep architectures for sentiment and other NLP tasks \cite{minaee}. A feed-forward sentiment network reached 88.2\% validation accuracy on the Keras IMDB benchmark; a polarity-weighted version trained on the Stanford Large Movie Review Dataset reached 91.76\% transfer accuracy on IMDB \cite{vassilev}. These results support testing dense models on fixed-length text features, although their datasets and splits differ from this project.
+
+Residual connections add a transformed representation to its input. The original study demonstrated this approach in image recognition \cite{he}; here, the connection principle is adapted to a text-feature MLP. The hypothesis is that linear models will be strong on sparse vectors, while neural models may benefit from non-linear combinations. All models are expected to lose some F1 on at least one target domain.
+
 \section{Dataset Description}
-The dataset is the Johns Hopkins Multi-Domain Sentiment Dataset, version 2.0 \cite{dredze}. It contains Amazon product reviews from several product categories. The official page provides an unprocessed archive, a preprocessed balanced binary archive and a preprocessed archive with star-rating labels. This project uses \texttt{processed\_acl.tar.gz}, which follows the binary format used by Blitzer et al. (2007). Each preprocessed line contains feature-count pairs followed by a \texttt{\#label\#} field. Each directory represents a product domain.
-Four domains are selected: Books, DVD, Electronics and Kitchen. Books is the source domain. DVD, Electronics and Kitchen are held out as target domains. The parser reads the feature-count representation and the binary label. Positive reviews are encoded as 1 and negative reviews as 0. No neutral class is introduced.
-To keep training practical and make domain comparisons balanced, the experiment samples up to 1,500 reviews from each class in each domain using a fixed random seed. If a domain contains fewer examples, all available examples are retained. The selected sample counts are reported below after the dataset is processed.
+The project uses the Johns Hopkins Multi-Domain Sentiment Dataset, version 2.0. The official source provides unprocessed reviews, a balanced binary archive and a preprocessed star-rating archive. The selected \texttt{processed\_acl.tar.gz} file stores one review per line as feature-count pairs followed by a binary label; each directory represents a product domain \cite{jhu}.
+
+Books, DVD, Electronics and Kitchen are selected. Each contains 2,000 labelled reviews (1,000 positive and 1,000 negative), giving 8,000 in total. All available records are retained. Books is the source domain, with 1,280 training, 320 validation and 400 test reviews. Each target domain contributes 2,000 test reviews.
+
+The original reviews are unstructured text, but the selected archive converts them into structured sparse feature-count records. After vectorisation and chi-square selection, each review uses the same 5,000 source-training features. The parser excludes records without usable features or a valid binary label rather than imputing them; an absent sparse feature represents zero. Domain vocabularies contain 195,876 distinct Books features, 188,768 DVD, 111,395 Electronics and 93,468 Kitchen. The shared representation has 8,000 rows and 5,000 selected columns. This archive supports controlled domain comparison, but removes word order and review context and is a balanced subset of the full Amazon corpus.
+
 \input{generated_dataset.tex}
-A strength of this dataset is that it provides the same sentiment task across several product domains, allowing a controlled transfer comparison. A limitation is that the preprocessed feature representation removes word order and much of the original review context. It cannot support sequence-based analysis or detailed interpretation of sarcasm.
+
 \section{Data Analysis}
-The source-domain sample is divided into training, validation and test sets using stratified sampling: 64\%, 16\% and 20\%, respectively. The target domains are not used for fitting or hyperparameter selection. The vocabulary, TF--IDF weights and chi-square feature selector are fitted on the source training set only. This prevents information from the validation, test or target sets from leaking into preprocessing.
-The sample is balanced by class within each domain. A majority-class predictor is retained as a simple reference baseline. The class distribution and most frequent source-domain features are shown in Figures~\ref{fig:balance} and~\ref{fig:tokens}.
+The four domains are balanced, so no resampling is required. A constant-negative reference predictor is used because the classes are tied; it achieves 0.500 accuracy and 0.000 positive-class F1. The class-balance chart confirms equal class counts, while the feature-frequency chart shows common Books terms.
+
+The vocabulary, TF--IDF weights and chi-square selector are fitted on Books training data only. Validation, test and target records use those fitted objects, preventing evaluation data from influencing feature selection. Target-domain terms absent from the Books vocabulary cannot contribute to predictions. Frequent Books features include \texttt{book}, \texttt{story}, \texttt{good} and \texttt{great}. Negation terms such as \texttt{not} and \texttt{never} are retained because removing them can reverse review meaning.
+
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.82\textwidth]{../results/figures/domain_class_balance.png}
-\caption{Positive and negative review counts in the sampled domains.}
+\includegraphics[width=0.78\textwidth]{../results/figures/domain_class_balance.png}
+\caption{Positive and negative review counts in the four selected domains.}
 \label{fig:balance}
 \end{figure}
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.82\textwidth]{../results/figures/top_source_features.png}
+\includegraphics[width=0.78\textwidth]{../results/figures/top_source_features.png}
 \caption{Most frequent features in the Books source domain.}
-\label{fig:tokens}
+\label{fig:features}
 \end{figure}
+
 \section{Methods}
-All reviews are represented as sparse feature-count vectors. A DictVectorizer builds the document-feature matrix, TF--IDF reduces the weight of features common across many reviews, and chi-square selection retains up to 5,000 source-training features.
+Each review is a sparse token-count vector. TF--IDF down-weights common terms and chi-square selection retains up to 5,000 source-training features. All models receive the same representation.
+
 \subsection{Traditional machine learning}
-\textbf{Logistic Regression.} This model learns a weight for each input feature and converts the weighted sum into a probability:
+\textbf{Logistic Regression} converts a weighted feature sum into a positive-class probability:
 \[
 P(y=1\mid x)=\frac{1}{1+\exp(-(w^\top x+b))}.
 \]
-It is suitable for high-dimensional text vectors and gives probability scores for ROC-AUC. Its decision boundary is linear, so it may miss complex feature interactions.
-\textbf{Linear Support Vector Machine.} The Linear SVM finds a separating hyperplane with a large margin between positive and negative reviews. It is a strong text-classification baseline when many features are sparse. It provides decision scores rather than calibrated probabilities and also learns a linear boundary.
+It suits sparse text and provides probability scores for ROC-AUC. Its linear boundary cannot represent complex term interactions without extra features.
+
+\textbf{Linear Support Vector Machine} separates the classes by maximising the margin. It is a strong choice for high-dimensional sparse text. Its scores are not calibrated probabilities, and its linear boundary limits feature interactions.
+
 \subsection{Deep learning}
-\textbf{Deep Neural Network.} The DNN uses fully connected layers with ReLU activations. The hidden layers combine selected word features to learn non-linear patterns. Dropout reduces reliance on individual units. This model is suitable for the fixed-length feature vectors, but it does not learn word order.
-\textbf{Residual MLP.} The Residual MLP first projects the sparse input into a dense representation and then applies residual blocks. Each block learns a transformation that is added to its input. This can preserve useful information while the representation is refined. It has more parameters than the linear models and may overfit a small training sample.
-The two linear methods were chosen because they are established text-classification baselines (Pang et al., 2002). The two neural models were chosen because they can learn non-linear feature combinations while matching the bag-of-words representation supplied with the dataset.
+\textbf{Deep Neural Network (DNN)} uses fully connected layers and ReLU activations to learn non-linear combinations of word features. Dropout reduces reliance on individual hidden units. It suits fixed-length vectors but does not learn word order and may overfit a small sample.
+
+\textbf{Residual Multi-Layer Perceptron (Residual MLP)} adds each block's transformed representation to its input. This creates a deeper feature learner while preserving a direct information path. Its extra parameters may capture interactions, but may overfit the Books sample.
+
+The linear models are text-classification baselines; the neural models test non-linear feature learning. RNNs, LSTMs and transformers are not used because the archive has no ordered token sequence. Evaluation uses accuracy, precision, recall, F1 and ROC-AUC. F1 balances precision and recall; ROC-AUC measures ranking across thresholds.
+
 \section{Implementing and Refining the Models}
-The same source split and selected features are used for every model. Each method is run in a baseline form and a refined form.
-For Logistic Regression and Linear SVM, the baseline uses \(C=1.0\). Refinement tests \(C\in\{0.01,0.1,1,10\}\) on the validation set and selects the value with the highest validation F1-score. The test and target labels are not used to select \(C\). Refined versions also select a decision threshold using validation F1; baseline versions retain their standard thresholds.
-The baseline DNN has one hidden layer with 128 units and dropout of 0.20. Its refined version uses 256 and 128 hidden units, dropout of 0.35, AdamW weight decay and early stopping. The baseline Residual MLP uses one 128-unit residual block with dropout of 0.15. Its refined version uses two 256-unit residual blocks, dropout of 0.25, weight decay, gradient clipping and early stopping. Validation loss determines the best neural checkpoint.
-The code records the validation F1-score and settings for each version in \texttt{results/refinement\_comparison.csv}. The final evaluation is performed only after the refinement choices have been fixed.
+Each model has a baseline and refined version. Baseline Logistic Regression and Linear SVM use \(C=1.0\); refinement tests \(C\in\{0.01,0.1,1,10\}\) and selects the highest validation F1. Refined linear models also select a decision threshold on validation data. Test and target labels are never used for selection.
+
+The baseline DNN has one 128-unit hidden layer, dropout 0.20 and learning rate 0.001. Its refined form has 256- and 128-unit layers, dropout 0.35, learning rate 0.0005 and AdamW weight decay 0.0001. The baseline Residual MLP has one 128-unit block and dropout 0.15; its refined form has two 256-unit blocks, dropout 0.25 and weight decay 0.0001. Both use batches of 64 and validation-loss early stopping; refined neural models also use gradient clipping. The best validation checkpoint is retained.
+
+Validation F1 rises for all refined models, but this does not guarantee a higher test score. Both stages are therefore evaluated on held-out data. The neural networks use binary cross-entropy with logits and AdamW; dropout and weight decay reduce reliance on individual features. Early stopping selects the checkpoint with the lowest validation loss, while a fixed random seed controls the split and initialisation. The experiment records the selected settings, validation scores and decision thresholds so that each refinement can be checked against the code.
+
+\input{generated_refinement.tex}
+
 \section{Results and Evaluation}
-Each model is evaluated using accuracy, precision, recall, F1-score and ROC-AUC. The unified table reports the baseline and refined versions on the Books test set and each target domain. The majority-class reference is included for comparison. Higher values indicate better performance.
+Table 3 compares the reference predictor and all model stages using validation F1, accuracy, precision, recall, F1 and ROC-AUC.
+
+\begin{landscape}
 \input{generated_results.tex}
-The adaptation-gap chart compares the refined models' Books test F1-score with their mean F1-score across the target domains. A smaller positive gap indicates less loss when moving away from the source domain. This view focuses on transfer rather than repeating the table values.
+\end{landscape}
+
+The refined DNN gives the strongest Books test result (F1=0.867; accuracy=0.860) and the highest mean target F1 (0.779). Its target average is only 0.004 above Logistic Regression (0.775), a small difference; no significance test was performed. Logistic Regression has the smallest Books-to-target F1 gap (0.060), compared with 0.065 for Linear SVM, 0.081 for Residual MLP and 0.087 for DNN. It transfers most consistently, while DNN has the highest target average.
+
+Electronics is the hardest target (mean F1=0.746); DVD is easiest (0.792), followed by Kitchen (0.774). Different product vocabulary may explain some of the Electronics drop, although this cause was not tested. The results support the hypothesis that domain changes reduce performance, with the size of the drop depending on both model and category.
+
+Refinement did not improve every Books test result. DNN F1 rose from 0.862 to 0.867 and Logistic Regression from 0.832 to 0.835. Linear SVM fell from 0.859 to 0.832; Residual MLP fell from 0.856 to 0.844. However, all refined models improved their mean target F1 over their own baselines. DNN gained 0.037, the largest target-domain increase. Validation improvements therefore cannot be treated as proof of better test performance.
+
+Threshold selection changes the precision--recall balance. Refined Logistic Regression on Books raises recall from 0.790 to 0.935, while precision falls from 0.878 to 0.754. F1 changes only from 0.832 to 0.835, and accuracy falls from 0.840 to 0.815. This is a validation-F1 trade-off, not a gain in every metric. The SVM and Residual MLP declines suggest that validation tuning may not transfer perfectly. One reason may be that the validation set is drawn from Books, while the final target domains have different feature distributions. The DNN may benefit from non-linear combinations of review terms, but its target-average advantage over Logistic Regression is small. The linear model is therefore still a reasonable choice when simplicity and consistent transfer matter more than the highest average F1. The adaptation-gap chart summarises transfer consistency; the Electronics confusion matrices show class-specific errors. The evaluation contains one fixed split and does not include confidence intervals or repeated-seed significance tests, so small differences should be interpreted cautiously.
+
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.82\textwidth]{../results/figures/model_adaptation_gap.png}
-\caption{Difference between in-domain F1 and mean cross-domain F1 for refined models.}
+\includegraphics[width=0.76\textwidth]{../results/figures/model_adaptation_gap.png}
+\caption{Difference between Books test F1 and mean target-domain F1 for refined models.}
 \label{fig:gap}
 \end{figure}
-\input{generated_discussion.tex}
-The confusion matrices for the refined models are saved in \texttt{results/figures/}. They show which sentiment class accounts for the remaining errors. Results should be interpreted with the balanced sample and the four selected domains in mind; they do not establish performance on all product categories.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\textwidth]{../results/figures/confusion_grid_electronics.png}
+\caption{Confusion matrices for the four refined models on the Electronics target domain.}
+\label{fig:confusion}
+\end{figure}
+
+The results imply that a linear model remains a practical option when transfer consistency and lower computational cost matter. The DNN gives the highest mean target F1, but its margin over Logistic Regression is small. The experiment is limited to 8,000 balanced reviews from four domains and one source domain. It does not establish that the DNN will outperform on other product categories or on the full unprocessed corpus.
+
 \section{Legal, Social, Ethical, Cultural and Professional Implications}
-\textbf{Use of user-generated reviews.} The source reviews were written by customers for a retail platform. The original data may contain identifying fields such as reviewer names or locations, even though this experiment uses only preprocessed word features and sentiment labels. Reusing or publishing identifiable review content could expose information that was not supplied for this coursework. The mitigation is to exclude identifiers and raw review text from the analysis outputs, keep the downloaded archive out of the public repository and cite the dataset authors.
-\textbf{Domain and representation bias.} The language in books, electronics, DVD and kitchen reviews differs. A model trained on Books may misclassify opinions in a target domain, and balanced sampling does not make the language or product groups representative of all customers. The mitigation is to report metrics separately for each domain, state the sampling limit and avoid using the classifier as the sole basis for decisions about sellers or customers.
+\textbf{Customer-generated content.} Reviews were written by customers for a retail platform and may contain personal details. Public availability does not automatically permit republication. This project uses the official preprocessed feature-count archive, publishes no raw review text or reviewer identifiers, excludes the raw archive from GitHub and cites the dataset. The provider's terms should still be checked before reuse beyond this coursework.
+
+\textbf{Domain and representation bias.} The sample covers four Amazon categories and balances positive and negative reviews. This supports comparison but does not reflect natural opinion frequencies or represent all customers, regions or products. A Books-trained model may misclassify Electronics or Kitchen language. Mitigations are per-domain reporting, explicit sample limitations and human review before predictions inform decisions about sellers, products or customers. The system should not be used to rank individual reviewers or infer demographic characteristics because the dataset does not provide a representative basis for those decisions.
+
+\Needspace{7\baselineskip}
 \section{Conclusion}
-This project compares two traditional classifiers and two deep neural models for cross-domain sentiment classification. It uses Books as the source domain and evaluates transfer to DVD, Electronics and Kitchen reviews. The report records model refinement and compares baseline and refined performance using five metrics. The conclusions are limited to the selected dataset, sample and domains.
+The DNN achieved the highest refined mean target F1, while Logistic Regression transferred with the smallest F1 gap. Electronics was the hardest target. Refinement improved validation F1 for all models but did not improve every held-out result. The experiment therefore supports a measured conclusion: non-linear feature learning helps on average, but a regularised linear classifier remains competitive. These conclusions apply only to the selected archive, representation and four domains.
+
 \section*{Generative AI acknowledgement}
-ChatGPT (OpenAI, 2026) was used to assist with initial code scaffolding and report drafting. The author must verify the cited literature, inspect the code and results, and revise AI-generated model descriptions and justifications to reflect their own understanding.
+ChatGPT (OpenAI) was used to assist with code scaffolding, debugging support and report structuring. The student should verify the literature, understand the implemented models and revise any AI-assisted explanation to reflect their own analysis before submission.
+
 \begin{thebibliography}{9}
+\small
+\setlength{\itemsep}{2pt}
+\setlength{\parsep}{0pt}
 \bibitem{blitzer}
-J. Blitzer, M. Dredze and F. Pereira (2007). \emph{Biographies, Bollywood, Boom-boxes and Blenders: Domain Adaptation for Sentiment Classification}. Proceedings of ACL, pp. 440--447. \url{https://aclanthology.org/P07-1056/}.
+J. Blitzer, M. Dredze and F. Pereira (2007). \emph{Biographies, Bollywood, Boom-boxes and Blenders: Domain Adaptation for Sentiment Classification}. Proceedings of the 45th Annual Meeting of the Association for Computational Linguistics, pp. 440--447. \url{https://aclanthology.org/P07-1056/}.
+
 \bibitem{pang}
-B. Pang, L. Lee and S. Vaithyanathan (2002). \emph{Thumbs up? Sentiment Classification Using Machine Learning Techniques}. Proceedings of EMNLP, pp. 79--86. \url{https://aclanthology.org/W02-1011/}.
-\bibitem{dredze}
-Johns Hopkins University. \emph{Multi-Domain Sentiment Dataset, version 2.0}. Dataset documentation. \url{https://www.cs.jhu.edu/~mdredze/datasets/sentiment/}.
+B. Pang, L. Lee and S. Vaithyanathan (2002). \emph{Thumbs up? Sentiment Classification Using Machine Learning Techniques}. Proceedings of EMNLP 2002, pp. 79--86. \url{https://aclanthology.org/W02-1011/}.
+
 \bibitem{minaee}
-S. Minaee et al. (2021). \emph{Deep Learning Based Text Classification: A Comprehensive Review}. ACM Computing Surveys, 54(3), Article 62. \url{https://doi.org/10.1145/3439726}.
+S. Minaee et al. (2021). \emph{Deep Learning--based Text Classification: A Comprehensive Review}. ACM Computing Surveys, 54(3), Article 62. \url{https://doi.org/10.1145/3439726}.
+
+\bibitem{vassilev}
+A. Vassilev (2019). \emph{BowTie: A Deep Learning Feedforward Neural Network for Sentiment Analysis}. NIST Cybersecurity White Paper, NIST.CSWP.04222019. \url{https://doi.org/10.6028/NIST.CSWP.04222019}.
+
 \bibitem{he}
-K. He, X. Zhang, S. Ren and J. Sun (2016). \emph{Deep Residual Learning for Image Recognition}. Proceedings of CVPR, pp. 770--778. \url{https://doi.org/10.1109/CVPR.2016.90}.
-\bibitem{openai}
-OpenAI (2026). \emph{ChatGPT}. \url{https://chatgpt.com/}.
+K. He, X. Zhang, S. Ren and J. Sun (2016). \emph{Deep Residual Learning for Image Recognition}. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp. 770--778. \url{https://doi.org/10.1109/CVPR.2016.90}.
+
+\bibitem{jhu}
+Johns Hopkins University (2009). \emph{Multi-Domain Sentiment Dataset, version 2.0}. Dataset documentation. \url{https://www.cs.jhu.edu/~mdredze/datasets/sentiment/}.
 \end{thebibliography}
+
 \end{document}
