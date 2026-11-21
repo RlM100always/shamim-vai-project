@@ -10,7 +10,7 @@ Status: Successful
 - Trained refined model weights and preprocessing objects saved under results/models.
 - Notebook executed with visible outputs.
 - Unified metrics table, refinement log and figures generated.
-- LaTeX report compiled; word count: 2,338.
+- LaTeX report compiled; word count: 2,332.
 
 ## Measured results
 
