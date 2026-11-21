@@ -93,7 +93,7 @@
     \begin{tabularx}{\linewidth}{@{}>{\bfseries}p{0.20\linewidth}X>{\bfseries}p{0.19\linewidth}X@{}}
       Module & Applied Artificial Intelligence & Lecturer & Dr Aarzoo Dhiman\\[0.20cm]
       Student name & \rule{\linewidth}{0.4pt} & Student ID & \rule{\linewidth}{0.4pt}\\[0.20cm]
-      Word count & \input{generated_wordcount.tex} & Deadline & 3 December 2026, 14:00\\
+      Word count (TeXcount) & \input{generated_wordcount.tex} & Deadline & 3 December 2026, 14:00\\
     \end{tabularx}
   }}
 \par
@@ -164,14 +164,14 @@ Each review is a sparse token-count vector. TF--IDF down-weights common terms an
 \[
 P(y=1\mid x)=\frac{1}{1+\exp(-(w^\top x+b))}.
 \]
-It suits sparse text and provides probability scores for ROC-AUC. Its linear boundary cannot represent complex term interactions without extra features.
+It suits sparse text and provides probability scores for ROC-AUC. The log-linear approach is related to maximum-entropy models used in early review sentiment experiments \cite{pang}. Its linear boundary cannot represent complex term interactions without extra features.
 
-\textbf{Linear Support Vector Machine} separates the classes by maximising the margin. It is a strong choice for high-dimensional sparse text. Its scores are not calibrated probabilities, and its linear boundary limits feature interactions.
+\textbf{Linear Support Vector Machine} separates the classes by maximising the margin. It is a strong choice for high-dimensional sparse text and was evaluated directly in early review sentiment experiments \cite{pang}. Its scores are not calibrated probabilities, and its linear boundary limits feature interactions.
 
 \subsection{Deep learning}
-\textbf{Deep Neural Network (DNN)} uses fully connected layers and ReLU activations to learn non-linear combinations of word features. Dropout reduces reliance on individual hidden units. It suits fixed-length vectors but does not learn word order and may overfit a small sample.
+\textbf{Deep Neural Network (DNN)} uses fully connected layers and ReLU activations to learn non-linear combinations of word features. Dropout reduces reliance on individual hidden units. It suits fixed-length vectors but does not learn word order and may overfit a small sample. Feed-forward sentiment models have also been tested successfully with multi-hot review features \cite{vassilev}.
 
-\textbf{Residual Multi-Layer Perceptron (Residual MLP)} adds each block's transformed representation to its input. This creates a deeper feature learner while preserving a direct information path. Its extra parameters may capture interactions, but may overfit the Books sample.
+\textbf{Residual Multi-Layer Perceptron (Residual MLP)} adds each block's transformed representation to its input. This creates a deeper feature learner while preserving a direct information path. Its extra parameters may capture interactions, but may overfit the Books sample. The skip-connection principle is adapted from residual learning, whose original evidence came from image recognition \cite{he}.
 
 The linear models are text-classification baselines; the neural models test non-linear feature learning. RNNs, LSTMs and transformers are not used because the archive has no ordered token sequence. Evaluation uses accuracy, precision, recall, F1 and ROC-AUC. F1 balances precision and recall; ROC-AUC measures ranking across thresholds.
 
