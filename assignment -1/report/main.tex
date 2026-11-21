@@ -1,0 +1,47 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage[hidelinks]{hyperref}
+\setstretch{1.12}
+\title{Comparative Analysis of Traditional Machine Learning and Deep Neural Networks for Multi-Domain Sentiment Classification}
+\author{Student Name: \underline{\hspace{5cm}}\\Student ID: \underline{\hspace{5cm}}\\Module: Applied Artificial Intelligence}
+\date{November 2026}
+\begin{document}
+\maketitle
+\begin{center}
+\fbox{\parbox{0.9\textwidth}{\centering\textbf{Draft: real-data experiments are pending.} Run the supplied code on the official dataset before submission. No numerical results are invented.}}
+\end{center}
+\begin{abstract}
+This project compares three traditional machine-learning classifiers and two feed-forward deep neural networks for binary sentiment classification of Amazon product reviews across domains. It uses the Johns Hopkins Multi-Domain Sentiment Dataset version 2.0, selecting the preprocessed ACL variant. Models are trained on a source domain and evaluated on a held-out source test set and other product domains. The comparison includes Multinomial Naive Bayes, Logistic Regression, Linear Support Vector Machine, a Deep Neural Network and a Residual Multi-Layer Perceptron. Preprocessing uses a training-only vocabulary, TF-IDF weighting and chi-square feature selection. Accuracy, precision, recall, F1-score and ROC-AUC are recorded. Numerical findings must be generated from the official data before submission.
+\end{abstract}
+\section{Introduction}
+Online product reviews contain opinions that can help customers and businesses understand product experiences. Sentiment classification assigns a review to a positive or negative class. A model trained on one product category may perform differently on another because vocabulary, product attributes and expectations vary across domains. The project asks how well models perform in-domain and how much performance changes on other domains.
+\section{Background}
+Blitzer, Dredze and Pereira introduced the Amazon multi-domain review benchmark to study domain adaptation for sentiment classification. Traditional text classifiers use word-frequency representations. Multinomial Naive Bayes estimates class probabilities from feature counts; Logistic Regression learns a linear probability model; Linear SVM maximises the margin between classes. Feed-forward neural networks learn non-linear feature combinations. A residual MLP adds skip connections.
+The processed ACL data contain feature counts, not the original sequence of words. Feed-forward neural networks are therefore used instead of recurrent or transformer models, which require meaningful token order.
+\section{Dataset Description}
+The selected dataset is the Johns Hopkins Multi-Domain Sentiment Dataset version 2.0. It contains Amazon product reviews from multiple domains. This project uses the balanced binary-labelled processed ACL variant. Each preprocessed document is stored as feature-count pairs followed by a label. Each directory corresponds to a product domain. Unlabelled reviews are excluded from supervised training. The exact domain sizes and class counts are computed from the downloaded archive by the code.
+\section{Data Analysis and Preprocessing}
+A custom parser reads feature-count pairs and sentiment labels. Positive reviews are encoded as 1 and negative reviews as 0. The source domain is separated into training, validation and test subsets using stratified sampling and a fixed seed. Target domains are kept outside model fitting. DictVectorizer creates a sparse document-term matrix, TF-IDF reduces the influence of common terms, and chi-square feature selection retains up to 10,000 features based on training data only.
+\section{Methods}
+Five models are compared: Multinomial Naive Bayes, Logistic Regression, Linear SVM, a two-hidden-layer Deep Neural Network, and a Residual Multi-Layer Perceptron. The DNN uses ReLU activations, dropout, binary cross-entropy and AdamW. The Residual MLP uses two residual blocks with layer normalisation and dropout. Validation-based early stopping and gradient clipping are used for both neural models.
+\section{Implementation and Refinement}
+The project is organised into reusable Python modules for parsing, model definition, training and evaluation. Refinement includes early stopping, dropout, weight decay, gradient clipping and a fixed feature-selection limit. Target-domain data are not used for model tuning. A fixed random seed supports reproducibility.
+\section{Results and Evaluation}
+Accuracy, precision, recall, F1-score and ROC-AUC are reported. The experiment evaluates an in-domain held-out test set and cross-domain target sets. Confusion matrices and a grouped F1-score chart are generated.
+\input{generated_results.tex}
+No numerical performance values are inserted in this initial report because the official dataset could not be downloaded in the build environment. Run the experiment script to populate the results table, inspect the outputs and write your own interpretation before submission.
+\section{Legal, Social, Ethical, Cultural and Professional Implications}
+The dataset contains customer reviews originally posted on an online retail platform. The original work must be cited and the provider's terms checked before reuse. Reviews may not represent all customers, regions, languages or demographic groups. Binary labels simplify mixed sentiment, sarcasm and neutral information. Incorrect predictions could mislead a business if used without human review. The project does not identify reviewers or infer sensitive personal attributes.
+\section{Conclusion}
+This project defines a reproducible comparison of three traditional classifiers and two deep neural models for binary sentiment classification across product domains. Numerical findings and the final model recommendation must be written after the supplied pipeline has been run on the official dataset.
+\begin{thebibliography}{9}
+\bibitem{blitzer2007} J. Blitzer, M. Dredze and F. Pereira, ``Biographies, Bollywood, Boom-boxes and Blenders: Domain Adaptation for Sentiment Classification,'' Proceedings of ACL, 2007, pp. 440--447.
+\bibitem{dredze_dataset} M. Dredze, ``Multi-Domain Sentiment Dataset (version 2.0),'' Johns Hopkins University. \url{https://www.cs.jhu.edu/~mdredze/datasets/sentiment/}.
+\bibitem{pedregosa2011} F. Pedregosa et al., ``Scikit-learn: Machine Learning in Python,'' Journal of Machine Learning Research, vol. 12, pp. 2825--2830, 2011.
+\bibitem{paszke2019} A. Paszke et al., ``PyTorch: An Imperative Style, High-Performance Deep Learning Library,'' NeurIPS, 2019.
+\end{thebibliography}
+\end{document}
