@@ -83,7 +83,7 @@ Raw data are downloaded from the official source and excluded from Git. The proj
 """
     build = f"""# Build status
 
-<badge>Successful</badge>
+Status: Successful
 
 - Official Multi-Domain Sentiment Dataset v2.0 downloaded and processed.
 - Four domains sampled with equal positive and negative classes.
