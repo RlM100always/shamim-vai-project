@@ -4,7 +4,7 @@
     "validation_f1": 0.7733333333333333
   },
   "Logistic Regression__refined": {
-    "decision_threshold": 0.3701470858802196,
+    "decision_threshold": 0.37014708588021844,
     "validation_f1": 0.8268156424581006
   },
   "Linear SVM__baseline": {

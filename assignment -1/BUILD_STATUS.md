@@ -10,7 +10,7 @@ Status: Successful
 - Trained refined model weights and preprocessing objects saved under results/models.
 - Notebook executed with visible outputs.
 - Unified metrics table, refinement log and figures generated.
-- LaTeX report compiled; TeXcount total: 2,655 words (maximum allowed: 3,000).
+- LaTeX report compiled; TeXcount total: 2,662 words (maximum allowed: 3,000).
 
 ## Measured results
 
