@@ -61,14 +61,20 @@ jobs:
           pdflatex -interaction=nonstopmode -halt-on-error main.tex
           pdflatex -interaction=nonstopmode -halt-on-error main.tex
 
-      - name: Commit executed notebook, results and PDF
+      - name: Package full project ZIP
+        working-directory: assignment -1
+        run: |
+          zip -qr assignment-1-full-project.zip . -x "data/raw/*" "assignment-1-full-project.zip" "*/__pycache__/*" "*.pyc" "report/*.aux" "report/*.log" "report/*.out" "report/*.toc"
+
+      - name: Commit executed notebook, results, PDF and ZIP
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f "assignment -1/notebooks/assignment_1_sentiment_analysis.ipynb"
           git add -f "assignment -1/results"
           git add -f "assignment -1/report/generated_dataset.tex" "assignment -1/report/generated_results.tex" "assignment -1/report/generated_discussion.tex" "assignment -1/report/generated_wordcount.tex" "assignment -1/report/main.pdf"
-          git commit -m "[bot] add executed notebook, measured results and report" || echo "No generated changes to commit"
+          git add -f "assignment -1/assignment-1-full-project.zip"
+          git commit -m "[bot] add executed notebook, measured results, report and project zip" || echo "No generated changes to commit"
           git push
 
       - name: Upload complete coursework outputs
@@ -81,3 +87,4 @@ jobs:
             assignment -1/report/main.pdf
             assignment -1/report/main.tex
             assignment -1/report/generated_*.tex
+            assignment -1/assignment-1-full-project.zip
