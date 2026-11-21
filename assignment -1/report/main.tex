@@ -22,6 +22,7 @@
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.3pt}
 \begin{document}
+\hypersetup{pageanchor=false}
 \begin{titlepage}
 \pagecolor{Navy}
 \color{white}
@@ -53,12 +54,15 @@
 \end{tabular}
 }}
 \vspace{0.7cm}
-{\small Dataset: Multi-Domain Sentiment Dataset, version 2.0}\\
-{\small Task: Binary sentiment classification with cross-domain evaluation}
+{\small Dataset: Multi-Domain Sentiment Dataset, version 2.0}\par
+\vspace{0.15cm}
+\parbox{\textwidth}{\small Task: Binary sentiment classification\\with cross-domain evaluation}
 \vspace{0.45cm}
 {\color{Teal}\rule{\textwidth}{3pt}}
 \end{titlepage}
 \nopagecolor
+\hypersetup{pageanchor=true}
+\pagenumbering{arabic}
 \color{black}
 \begin{abstract}
 This project tests whether sentiment classifiers trained on Amazon book reviews transfer to DVD, electronics and kitchen reviews. Two traditional models, Logistic Regression and Linear Support Vector Machine, are compared with a feed-forward Deep Neural Network and a Residual Multi-Layer Perceptron. Each model is evaluated before and after a documented refinement. The official preprocessed binary dataset is used. Evaluation includes accuracy, precision, recall, F1-score and ROC-AUC.
@@ -108,7 +112,7 @@ It is suitable for high-dimensional text vectors and gives probability scores fo
 The two linear methods were chosen because they are established text-classification baselines (Pang et al., 2002). The two neural models were chosen because they can learn non-linear feature combinations while matching the bag-of-words representation supplied with the dataset.
 \section{Implementing and Refining the Models}
 The same source split and selected features are used for every model. Each method is run in a baseline form and a refined form.
-For Logistic Regression and Linear SVM, the baseline uses (C=1.0). Refinement tests (C\in\{0.01,0.1,1,10\}) on the validation set and selects the value with the highest validation F1-score. The test and target labels are not used to select (C).
+For Logistic Regression and Linear SVM, the baseline uses (C=1.0). Refinement tests \(C\in\{0.01,0.1,1,10\}\) on the validation set and selects the value with the highest validation F1-score. The test and target labels are not used to select (C).
 The baseline DNN has one hidden layer with 128 units and dropout of 0.20. Its refined version uses 256 and 128 hidden units, dropout of 0.35, AdamW weight decay and early stopping. The baseline Residual MLP uses one 128-unit residual block with dropout of 0.15. Its refined version uses two 256-unit residual blocks, dropout of 0.25, weight decay, gradient clipping and early stopping. Validation loss determines the best neural checkpoint.
 The code records the validation F1-score and settings for each version in \texttt{results/refinement\_comparison.csv}. The final evaluation is performed only after the refinement choices have been fixed.
 \section{Results and Evaluation}
