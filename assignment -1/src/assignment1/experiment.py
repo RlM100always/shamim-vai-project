@@ -120,53 +120,152 @@ def _latex_escape(value) -> str:
     return text
 
 
-def _write_report_tables(metrics, sampled_summary, report_dir):
+def _software_versions():
+    import platform
+    import scipy
+    import sklearn
+    import torch
+    return {
+        "python": platform.python_version(),
+        "numpy": np.__version__,
+        "pandas": pd.__version__,
+        "scipy": scipy.__version__,
+        "scikit_learn": sklearn.__version__,
+        "matplotlib": matplotlib.__version__,
+        "torch": torch.__version__,
+    }
+
+
+def _save_confusion_grid(figures: Path, evaluation: str, model_names: list[str]) -> None:
+    """Combine the four refined-model confusion matrices for one target domain."""
+    from PIL import Image
+
+    paths = [
+        figures / f"confusion_{_safe(name)}_{_safe(evaluation)}.png"
+        for name in model_names
+    ]
+    if not all(path.exists() for path in paths):
+        return
+    images = [Image.open(path).convert("RGB") for path in paths]
+    try:
+        cell_w = max(image.width for image in images)
+        cell_h = max(image.height for image in images)
+        canvas = Image.new("RGB", (cell_w * 2, cell_h * 2), "white")
+        for index, image in enumerate(images):
+            x = (index % 2) * cell_w + (cell_w - image.width) // 2
+            y = (index // 2) * cell_h + (cell_h - image.height) // 2
+            canvas.paste(image, (x, y))
+        canvas.save(figures / f"confusion_grid_{_safe(evaluation.replace('cross_domain:', ''))}.png", optimize=True)
+    finally:
+        for image in images:
+            image.close()
+
+
+def _write_report_tables(metrics, sampled_summary, report_dir, refinement_rows):
     report_dir.mkdir(parents=True, exist_ok=True)
 
     dataset_lines = [
-        r"\begin{table}[ht]",
+        r"\begin{table}[H]",
         r"\centering\small",
-        r"\caption{Number of documents used in each domain after balanced sampling.}",
-        r"\begin{tabular}{lrrr}",
-        r"\toprule",
-        r"Domain & Positive & Negative & Total \\",
-        r"\midrule",
+        r"\caption{Selected review sample and distinct feature counts by domain.}",
+        r"\label{tab:dataset}",
+        r"\setlength{\tabcolsep}{7pt}",
+        r"\renewcommand{\arraystretch}{1.18}",
+        r"\begin{tabular}{|l|r|r|r|r|}",
+        r"\hline",
+        r"\rowcolor{Navy}\textcolor{white}{\textbf{Domain}} & \textcolor{white}{\textbf{Reviews}} & \textcolor{white}{\textbf{Positive}} & \textcolor{white}{\textbf{Negative}} & \textcolor{white}{\textbf{Unique features}} \\",
+        r"\hline",
     ]
+    display_names = {"books": "Books", "dvd": "DVD", "electronics": "Electronics", "kitchen": "Kitchen"}
     for row in sampled_summary:
+        domain = display_names.get(row["domain"].lower(), row["domain"].title())
         dataset_lines.append(
-            f"{_latex_escape(row['domain'].title())} & {row['positive']} & {row['negative']} & {row['documents']} " + r"\\"
+            f"{_latex_escape(domain)} & {row['documents']} & {row['positive']} & {row['negative']} & {row['unique_features']} " + r"\\"
         )
-    dataset_lines.extend([r"\bottomrule", r"\end{tabular}", r"\end{table}"])
+        dataset_lines.append(r"\hline")
+    dataset_lines.extend([r"\end{tabular}", r"\end{table}"])
     (report_dir / "generated_dataset.tex").write_text("\n".join(dataset_lines), encoding="utf-8")
 
-    table = metrics.copy()
     lines = [
-        r"\begin{longtable}{ll l r r r r r}",
-        r"\caption{Unified evaluation results for all model variants.}\\",
-        r"\toprule",
-        r"Model & Stage & Test domain & Acc. & Prec. & Recall & F1 & ROC-AUC \\",
-        r"\midrule",
+        r"\scriptsize",
+        r"\setlength{\tabcolsep}{3pt}",
+        r"\renewcommand{\arraystretch}{0.98}",
+        r"\begin{longtable}{|p{4.0cm}|p{1.45cm}|p{2.1cm}|>{\centering\arraybackslash}p{1.35cm}|>{\centering\arraybackslash}p{1.35cm}|>{\centering\arraybackslash}p{1.35cm}|>{\centering\arraybackslash}p{1.35cm}|>{\centering\arraybackslash}p{1.25cm}|>{\centering\arraybackslash}p{1.45cm}|}",
+        r"\caption{Unified evaluation results for the reference baseline and all model variants.}\\",
+        r"\label{tab:results}\\",
+        r"\hline",
+        r"\rowcolor{Navy}\textcolor{white}{\textbf{Model}} & \textcolor{white}{\textbf{Stage}} & \textcolor{white}{\textbf{Test domain}} & \textcolor{white}{\textbf{Val. F1}} & \textcolor{white}{\textbf{Acc.}} & \textcolor{white}{\textbf{Prec.}} & \textcolor{white}{\textbf{Rec.}} & \textcolor{white}{\textbf{F1}} & \textcolor{white}{\textbf{ROC-AUC}} \\",
+        r"\hline",
         r"\endfirsthead",
-        r"\toprule",
-        r"Model & Stage & Test domain & Acc. & Prec. & Recall & F1 & ROC-AUC \\",
-        r"\midrule",
+        r"\hline",
+        r"\rowcolor{Navy}\textcolor{white}{\textbf{Model}} & \textcolor{white}{\textbf{Stage}} & \textcolor{white}{\textbf{Test domain}} & \textcolor{white}{\textbf{Val. F1}} & \textcolor{white}{\textbf{Acc.}} & \textcolor{white}{\textbf{Prec.}} & \textcolor{white}{\textbf{Rec.}} & \textcolor{white}{\textbf{F1}} & \textcolor{white}{\textbf{ROC-AUC}} \\",
+        r"\hline",
         r"\endhead",
-        r"\bottomrule",
+        r"\hline",
         r"\endfoot",
+        r"\hline",
+        r"\endlastfoot",
     ]
-    for _, row in table.iterrows():
-        evaluation = "Books test" if row["evaluation"] == "in_domain" else row["evaluation"].replace("cross_domain:", "").title()
+    for index, (_, row) in enumerate(metrics.iterrows()):
+        raw_domain = row["evaluation"].replace("cross_domain:", "")
+        if row["evaluation"] == "in_domain":
+            evaluation = "Books test"
+        else:
+            evaluation = display_names.get(raw_domain, raw_domain.title())
         values = []
-        for key in ["accuracy", "precision", "recall", "f1", "roc_auc"]:
+        for key in ["validation_f1", "accuracy", "precision", "recall", "f1", "roc_auc"]:
             value = row[key]
             values.append("--" if pd.isna(value) else f"{value:.3f}")
+        if index % 2 == 0:
+            lines.append(r"\rowcolor{Pale}")
         lines.append(
             f"{_latex_escape(row['model'])} & {_latex_escape(row['stage'])} & "
             f"{_latex_escape(evaluation)} & " + " & ".join(values) + r" \\"
         )
+        lines.append(r"\hline")
     lines.append(r"\end{longtable}")
     (report_dir / "generated_results.tex").write_text("\n".join(lines), encoding="utf-8")
 
+    refinement = pd.DataFrame(refinement_rows)
+    refinement_lines = [
+        r"\begin{table}[H]",
+        r"\centering\small",
+        r"\caption{Baseline and refined settings selected using the Books validation set.}",
+        r"\label{tab:refinement}",
+        r"\setlength{\tabcolsep}{4pt}",
+        r"\renewcommand{\arraystretch}{1.15}",
+        r"\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|>{\centering\arraybackslash}p{2.3cm}|}",
+        r"\hline",
+        r"\rowcolor{Navy}\textcolor{white}{\textbf{Model}} & \textcolor{white}{\textbf{Baseline setting}} & \textcolor{white}{\textbf{Refined setting}} & \textcolor{white}{\textbf{Validation F1}} \\",
+        r"\hline",
+    ]
+    for model_name in ["Logistic Regression", "Linear SVM", "Deep Neural Network", "Residual MLP"]:
+        subset = refinement[refinement["model"] == model_name].set_index("stage")
+        base = str(subset.loc["baseline", "setting"])
+        refined = str(subset.loc["refined", "setting"])
+        base_f1 = float(subset.loc["baseline", "validation_f1"])
+        refined_f1 = float(subset.loc["refined", "validation_f1"])
+        if model_name in {"Deep Neural Network", "Residual MLP"}:
+            def compact_setting(value):
+                config_text, _threshold_text = value.split("; decision_threshold=", 1)
+                config = json.loads(config_text)
+                return (
+                    f"{config['hidden_units']} units/blocks; dropout {config['dropout']}; "
+                    f"lr {config['learning_rate']}; weight decay {config['weight_decay']}; "
+                    f"batch {config['batch_size']}"
+                )
+            base = compact_setting(base)
+            refined = compact_setting(refined)
+        else:
+            base = base.replace("; decision_threshold=", "; threshold=")
+            refined = refined.replace("validation-selected ", "").replace("; decision_threshold=", "; threshold=")
+        refinement_lines.append(
+            f"{_latex_escape(model_name)} & {_latex_escape(base)} & {_latex_escape(refined)} & "
+            f"{base_f1:.3f} $\\rightarrow$ {refined_f1:.3f} " + r"\\"
+        )
+        refinement_lines.append(r"\hline")
+    refinement_lines.extend([r"\end{tabularx}", r"\end{table}"])
+    (report_dir / "generated_refinement.tex").write_text("\n".join(refinement_lines), encoding="utf-8")
 
 def _write_discussion(metrics, report_dir, refinement_rows):
     refined = metrics[metrics["stage"] == "refined"]
@@ -232,7 +331,7 @@ def run_experiment(
     output_dir: str | Path,
     source_domain: str = "books",
     target_domains: list[str] | None = None,
-    max_per_class: int = 1500,
+    max_per_class: int = 1000,
     max_features: int = 5000,
     seed: int = 42,
 ):
@@ -265,6 +364,8 @@ def run_experiment(
 
     # Exploratory class-balance plot.
     summary_frame = pd.DataFrame(sampled_summary).set_index("domain")
+    display_names = {"books": "Books", "dvd": "DVD", "electronics": "Electronics", "kitchen": "Kitchen"}
+    summary_frame.index = [display_names.get(name, name.title()) for name in summary_frame.index]
     ax = summary_frame[["positive", "negative"]].plot(kind="bar", figsize=(8, 4))
     ax.set_title("Balanced review sample by product domain")
     ax.set_xlabel("Product domain")
@@ -287,7 +388,7 @@ def run_experiment(
     token_frame = pd.DataFrame(top_tokens, columns=["token", "count"]).sort_values("count")
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.barh(token_frame["token"], token_frame["count"])
-    ax.set_title(f"Most frequent features in {source_domain.title()} training domain")
+    ax.set_title(f"Most frequent features in {source_domain.title()} source domain")
     ax.set_xlabel("Total feature count")
     fig.tight_layout()
     fig.savefig(figures / "top_source_features.png", dpi=180, bbox_inches="tight")
@@ -456,11 +557,11 @@ def run_experiment(
     rows = []
     refined_confusions = []
     for evaluation, matrix, labels in evaluations:
-        majority_label = int(pd.Series(y_train).mode().iloc[0])
-        majority_predictions = np.full(len(labels), majority_label, dtype=int)
-        majority_scores = majority_predictions.astype(float)
+        # The selected domains are balanced; resolve the class tie consistently as negative.
+        constant_label = 0
+        majority_predictions = np.full(len(labels), constant_label, dtype=int)
         majority_row = {
-            "model": "Majority baseline",
+            "model": "Constant-negative baseline",
             "stage": "reference",
             "evaluation": evaluation,
             "n_test": len(labels),
@@ -492,10 +593,17 @@ def run_experiment(
 
     # Confusion matrices for the four refined models only.
     for model_name, evaluation, y_true, y_pred in refined_confusions:
+        pretty_evaluation = evaluation.replace("cross_domain:", "").upper() if evaluation.endswith(":dvd") else evaluation.replace("cross_domain:", "").title()
         _save_confusion(
-            y_true, y_pred, f"{model_name} — {evaluation}",
+            y_true, y_pred, f"{model_name} — {pretty_evaluation} target",
             figures / f"confusion_{_safe(model_name)}_{_safe(evaluation)}.png",
         )
+
+    # Combine the four refined confusion matrices for the hardest target domain.
+    if "electronics" in targets:
+        _save_confusion_grid(figures, "cross_domain:electronics", [
+            "Logistic Regression", "Linear SVM", "Deep Neural Network", "Residual MLP"
+        ])
 
     # Adaptation-gap chart: source-domain F1 minus mean target-domain F1.
     refined = metrics[metrics["stage"] == "refined"]
@@ -515,6 +623,7 @@ def run_experiment(
 
     metadata = {
         "dataset": "Multi-Domain Sentiment Dataset version 2.0",
+        "software_versions": _software_versions(),
         "task": "Cross-domain binary sentiment classification",
         "source_domain": source_domain,
         "target_domains": targets,
@@ -530,6 +639,6 @@ def run_experiment(
         "refinement": "Validation-tuned C for traditional models; refined architecture, dropout, weight decay and early stopping for neural models.",
     }
     (output / "experiment_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    _write_report_tables(metrics, sampled_summary, report_dir)
+    _write_report_tables(metrics, sampled_summary, report_dir, refinement_rows)
     _write_discussion(metrics, report_dir, refinement_rows)
     return metrics
