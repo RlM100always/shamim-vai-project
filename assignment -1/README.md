@@ -21,7 +21,7 @@ Books: 2000 reviews (1000 positive, 1000 negative); DVD: 2000 reviews (1000 posi
 - Smallest Books-to-target F1 gap: Logistic Regression (0.060).
 - Hardest target: Electronics (mean F1 0.746); easiest: DVD (mean F1 0.792).
 
-The executed notebook, unified metrics table, refinement log, figures, trained refined model files, preprocessing objects, LaTeX source and compiled PDF are included in this folder.
+The executed notebook, unified metrics table, refinement log, figures, trained refined model files, preprocessing objects, LaTeX source and compiled PDF are included in this folder. The workflow also creates `assignment-1-full-project.zip` and a separate `assignment-1-latex-report-with-images.zip`.
 
 ## Run locally
 
