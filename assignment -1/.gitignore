@@ -3,10 +3,6 @@ __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
 .DS_Store
-*.tar.gz
 data/raw/**
 !data/raw/.gitkeep
-results/*.csv
-results/*.json
-results/figures/*.png
-!results/.gitkeep
+*.tar.gz
