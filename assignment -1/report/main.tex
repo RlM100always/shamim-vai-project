@@ -217,14 +217,14 @@ The results imply that a linear model remains a practical option when transfer c
 \section{Legal, Social, Ethical, Cultural and Professional Implications}
 \textbf{Customer-generated content.} Reviews were written by customers for a retail platform and may contain personal details. Public availability does not automatically permit republication. This project uses the official preprocessed feature-count archive, publishes no raw review text or reviewer identifiers, excludes the raw archive from GitHub and cites the dataset. The provider's terms should still be checked before reuse beyond this coursework.
 
-\textbf{Domain and representation bias.} The sample covers four Amazon categories and balances positive and negative reviews. This supports comparison but does not reflect natural opinion frequencies or represent all customers, regions or products. A Books-trained model may misclassify Electronics or Kitchen language. Mitigations are per-domain reporting, explicit sample limitations and human review before predictions inform decisions about sellers, products or customers. The system should not be used to rank individual reviewers or infer demographic characteristics because the dataset does not provide a representative basis for those decisions.
+\textbf{Domain and representation bias.} The sample covers four Amazon categories from one platform and balances positive and negative reviews. It does not reflect natural opinion frequencies or represent other markets, languages or cultural expectations. A Books-trained model may misclassify Electronics or Kitchen language. Mitigations are per-domain reporting, explicit sample limits, testing on new markets before deployment and human review before predictions inform decisions about sellers, products or customers. The system should not rank reviewers or infer demographic characteristics.
 
 \Needspace{7\baselineskip}
 \section{Conclusion}
 The DNN achieved the highest refined mean target F1, while Logistic Regression transferred with the smallest F1 gap. Electronics was the hardest target. Refinement improved validation F1 for all models but did not improve every held-out result. The experiment therefore supports a measured conclusion: non-linear feature learning helps on average, but a regularised linear classifier remains competitive. These conclusions apply only to the selected archive, representation and four domains.
 
 \section*{Generative AI acknowledgement}
-ChatGPT (OpenAI) was used to assist with code scaffolding, debugging support and report structuring. The student should verify the literature, understand the implemented models and revise any AI-assisted explanation to reflect their own analysis before submission.
+ChatGPT (OpenAI, 2026) was used to assist with code scaffolding, debugging support and report structuring \cite{openai}. The student should verify the literature, understand the implemented models and revise any AI-assisted explanation to reflect their own analysis before submission.
 
 \begin{thebibliography}{9}
 \small
@@ -247,6 +247,9 @@ K. He, X. Zhang, S. Ren and J. Sun (2016). \emph{Deep Residual Learning for Imag
 
 \bibitem{jhu}
 Johns Hopkins University (2009). \emph{Multi-Domain Sentiment Dataset, version 2.0}. Dataset documentation. \url{https://www.cs.jhu.edu/~mdredze/datasets/sentiment/}.
+
+\bibitem{openai}
+OpenAI (2026). \emph{ChatGPT}. Used for coding assistance and report structuring; accessed 21 November 2026. \url{https://chatgpt.com/}.
 \end{thebibliography}
 
 \end{document}
