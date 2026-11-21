@@ -1,0 +1,9 @@
+model,stage,validation_f1,setting
+Logistic Regression,baseline,0.7733333333333333,C=1.0
+Logistic Regression,refined,0.8,validation-selected C=10.0
+Linear SVM,baseline,0.7973856209150327,C=1.0
+Linear SVM,refined,0.8087774294670846,validation-selected C=10.0
+Deep Neural Network,baseline,0.803921568627451,"{""batch_size"": 64, ""best_epoch"": 10, ""dropout"": 0.2, ""hidden_units"": ""128"", ""learning_rate"": 0.001, ""max_epochs"": 10, ""patience"": 3, ""weight_decay"": 0.0}"
+Deep Neural Network,refined,0.8,"{""batch_size"": 64, ""best_epoch"": 7, ""dropout"": 0.35, ""hidden_units"": ""256-128"", ""learning_rate"": 0.0005, ""max_epochs"": 24, ""patience"": 5, ""weight_decay"": 0.0001}"
+Residual MLP,baseline,0.8092105263157895,"{""batch_size"": 64, ""best_epoch"": 2, ""dropout"": 0.15, ""hidden_units"": ""128 x 1 residual block"", ""learning_rate"": 0.001, ""max_epochs"": 10, ""patience"": 3, ""weight_decay"": 0.0}"
+Residual MLP,refined,0.0,"{""batch_size"": 64, ""best_epoch"": 1, ""dropout"": 0.25, ""hidden_units"": ""256 x 2 residual blocks"", ""learning_rate"": 0.0005, ""max_epochs"": 24, ""patience"": 5, ""weight_decay"": 0.0001}"

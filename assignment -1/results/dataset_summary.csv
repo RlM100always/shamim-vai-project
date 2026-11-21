@@ -1,0 +1,5 @@
+domain,documents,positive,negative,unique_features
+books,2000,1000,1000,195876
+dvd,2000,1000,1000,188768
+electronics,2000,1000,1000,111395
+kitchen,2000,1000,1000,93468

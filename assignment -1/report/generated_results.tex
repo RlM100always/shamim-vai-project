@@ -1,1 +1,49 @@
-\textit{Results are generated from the official dataset when the notebook runs.}
+\begin{longtable}{ll l r r r r r}
+\caption{Unified evaluation results for all model variants.}\\
+\toprule
+Model & Stage & Test domain & Acc. & Prec. & Recall & F1 & ROC-AUC \\
+\midrule
+\endfirsthead
+\toprule
+Model & Stage & Test domain & Acc. & Prec. & Recall & F1 & ROC-AUC \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+Majority baseline & reference & Books test & 0.500 & 0.000 & 0.000 & 0.000 & -- \\
+Logistic Regression & baseline & Books test & 0.840 & 0.878 & 0.790 & 0.832 & 0.924 \\
+Logistic Regression & refined & Books test & 0.865 & 0.892 & 0.830 & 0.860 & 0.934 \\
+Linear SVM & baseline & Books test & 0.863 & 0.884 & 0.835 & 0.859 & 0.935 \\
+Linear SVM & refined & Books test & 0.850 & 0.865 & 0.830 & 0.847 & 0.926 \\
+Deep Neural Network & baseline & Books test & 0.865 & 0.880 & 0.845 & 0.862 & 0.936 \\
+Deep Neural Network & refined & Books test & 0.865 & 0.888 & 0.835 & 0.861 & 0.936 \\
+Residual MLP & baseline & Books test & 0.860 & 0.883 & 0.830 & 0.856 & 0.927 \\
+Residual MLP & refined & Books test & 0.500 & 0.000 & 0.000 & 0.000 & 0.925 \\
+Majority baseline & reference & Dvd & 0.500 & 0.000 & 0.000 & 0.000 & -- \\
+Logistic Regression & baseline & Dvd & 0.786 & 0.834 & 0.715 & 0.770 & 0.871 \\
+Logistic Regression & refined & Dvd & 0.792 & 0.820 & 0.749 & 0.783 & 0.882 \\
+Linear SVM & baseline & Dvd & 0.793 & 0.824 & 0.747 & 0.783 & 0.882 \\
+Linear SVM & refined & Dvd & 0.794 & 0.798 & 0.788 & 0.793 & 0.873 \\
+Deep Neural Network & baseline & Dvd & 0.793 & 0.820 & 0.751 & 0.784 & 0.884 \\
+Deep Neural Network & refined & Dvd & 0.793 & 0.830 & 0.737 & 0.781 & 0.887 \\
+Residual MLP & baseline & Dvd & 0.795 & 0.833 & 0.738 & 0.783 & 0.880 \\
+Residual MLP & refined & Dvd & 0.500 & 0.000 & 0.000 & 0.000 & 0.869 \\
+Majority baseline & reference & Electronics & 0.500 & 0.000 & 0.000 & 0.000 & -- \\
+Logistic Regression & baseline & Electronics & 0.745 & 0.828 & 0.617 & 0.707 & 0.830 \\
+Logistic Regression & refined & Electronics & 0.745 & 0.838 & 0.606 & 0.703 & 0.837 \\
+Linear SVM & baseline & Electronics & 0.742 & 0.840 & 0.597 & 0.698 & 0.836 \\
+Linear SVM & refined & Electronics & 0.715 & 0.800 & 0.573 & 0.668 & 0.816 \\
+Deep Neural Network & baseline & Electronics & 0.727 & 0.818 & 0.584 & 0.681 & 0.819 \\
+Deep Neural Network & refined & Electronics & 0.724 & 0.837 & 0.555 & 0.667 & 0.821 \\
+Residual MLP & baseline & Electronics & 0.730 & 0.833 & 0.575 & 0.680 & 0.826 \\
+Residual MLP & refined & Electronics & 0.500 & 1.000 & 0.001 & 0.002 & 0.808 \\
+Majority baseline & reference & Kitchen & 0.500 & 0.000 & 0.000 & 0.000 & -- \\
+Logistic Regression & baseline & Kitchen & 0.771 & 0.810 & 0.709 & 0.756 & 0.863 \\
+Logistic Regression & refined & Kitchen & 0.783 & 0.816 & 0.731 & 0.771 & 0.867 \\
+Linear SVM & baseline & Kitchen & 0.782 & 0.817 & 0.727 & 0.769 & 0.866 \\
+Linear SVM & refined & Kitchen & 0.765 & 0.804 & 0.701 & 0.749 & 0.850 \\
+Deep Neural Network & baseline & Kitchen & 0.775 & 0.811 & 0.719 & 0.762 & 0.854 \\
+Deep Neural Network & refined & Kitchen & 0.775 & 0.828 & 0.695 & 0.756 & 0.857 \\
+Residual MLP & baseline & Kitchen & 0.778 & 0.822 & 0.710 & 0.762 & 0.857 \\
+Residual MLP & refined & Kitchen & 0.500 & 0.000 & 0.000 & 0.000 & 0.846 \\
+\end{longtable}

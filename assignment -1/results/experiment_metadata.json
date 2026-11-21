@@ -1,0 +1,35 @@
+{
+  "dataset": "Multi-Domain Sentiment Dataset version 2.0",
+  "task": "Cross-domain binary sentiment classification",
+  "source_domain": "books",
+  "target_domains": [
+    "dvd",
+    "electronics",
+    "kitchen"
+  ],
+  "domains_available": [
+    "books",
+    "dvd",
+    "electronics",
+    "kitchen"
+  ],
+  "max_per_class_per_domain": 1500,
+  "sampled_documents": {
+    "books": 2000,
+    "dvd": 2000,
+    "electronics": 2000,
+    "kitchen": 2000
+  },
+  "source_train": 1280,
+  "source_validation": 320,
+  "source_test": 400,
+  "selected_features": 5000,
+  "seed": 42,
+  "models": [
+    "Logistic Regression",
+    "Linear SVM",
+    "Deep Neural Network",
+    "Residual MLP"
+  ],
+  "refinement": "Validation-tuned C for traditional models; refined architecture, dropout, weight decay and early stopping for neural models."
+}
