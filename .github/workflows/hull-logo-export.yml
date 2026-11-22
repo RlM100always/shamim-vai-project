@@ -1,0 +1,27 @@
+name: Export University of Hull logo for academic report
+on:
+  push:
+    paths:
+      - 'assets/university_hull_logo.svg'
+      - '.github/workflows/hull-logo-export.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  export-logo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SVG converter
+        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
+      - name: Convert logo to print-ready assets
+        run: |
+          mkdir -p cover-logo-output
+          rsvg-convert --format pdf --output cover-logo-output/university_hull_logo.pdf assets/university_hull_logo.svg
+          rsvg-convert --format png --width 1600 --output cover-logo-output/university_hull_logo.png assets/university_hull_logo.svg
+          cp assets/university_hull_logo.svg cover-logo-output/university_hull_logo.svg
+      - name: Upload rendered logo assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: university-hull-logo-for-report
+          path: cover-logo-output/
